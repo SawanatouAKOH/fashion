@@ -23,7 +23,7 @@ export function Header() {
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-3" aria-label="Aller à l'accueil">
           <div className="relative h-12 w-12 overflow-hidden rounded-full bg-[#fff8fb] ring-1 ring-[#f3dbe6]">
-            <Image src="/images/logo-adis-fashion.png" alt="Logo Adi's Fashion" width={48} height={48} priority />
+            <Image src="/images/adi-fashion-logo.png" alt="Logo Adi's Fashion" width={48} height={48} priority />
           </div>
           <div className="hidden sm:block">
             <p className="text-lg font-semibold tracking-[0.12em] text-[#191919]">ADI&apos;S</p>

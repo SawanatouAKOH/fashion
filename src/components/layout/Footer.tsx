@@ -11,7 +11,7 @@ export function Footer() {
         <div className="space-y-4">
           <div className="flex items-center gap-3">
             <div className="relative h-12 w-12 overflow-hidden rounded-full bg-white ring-1 ring-[#f1dae4]">
-              <Image src="/images/logo-adis-fashion.png" alt="Logo Adi's Fashion" width={48} height={48} />
+              <Image src="/images/adi-fashion-logo.png" alt="Logo Adi's Fashion" width={48} height={48} />
             </div>
             <div>
               <p className="text-lg font-semibold text-[#1a1a1a]">{APP_NAME}</p>
@@ -56,6 +56,12 @@ export function Footer() {
               <Music2 className="h-4 w-4" /> TikTok
             </a>
           </div>
+        </div>
+
+        <div className="border-t border-[#f6e1ea] bg-white/40">
+          <p className="mx-auto max-w-7xl px-4 py-3 text-center text-[11px] tracking-[0.08em] text-[#7d7278] sm:px-6 lg:px-8">
+            Créé par <a href="https://www.linkedin.com/company/sawana-digital-agency/" target="_blank" rel="noreferrer" className="font-semibold text-[#3d3a3d] transition hover:text-[#d95d8d]">Sawana Tech</a>
+          </p>
         </div>
       </div>
     </footer>
