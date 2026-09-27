@@ -72,6 +72,14 @@ export const authConfig = {
           return null;
         }
 
+        if (user.role !== "ADMIN") {
+          console.log("[AUTH DEBUG] authorize failed: user is not admin", {
+            email,
+            role: user.role,
+          });
+          return null;
+        }
+
         const isValidPassword = await compare(password, user.passwordHash);
 
         console.log("[AUTH DEBUG] password validation", {
