@@ -1,5 +1,4 @@
-import { WHATSAPP_NUMBER } from "@/lib/constants";
-import { formatPrice } from "@/lib/constants";
+import { APP_NAME, WHATSAPP_NUMBER, formatPrice } from "@/lib/constants";
 import type { CartLineItem } from "@/types/product";
 
 export type CustomerOrderInformation = {
@@ -15,6 +14,7 @@ export function buildWhatsAppOrderMessage(
   customer: CustomerOrderInformation,
   items: CartLineItem[],
   total: number,
+  orderReference?: string,
 ) {
   const itemCount = items.reduce((count, item) => count + item.quantity, 0);
   const productsBlock = items
@@ -29,8 +29,9 @@ export function buildWhatsAppOrderMessage(
     .join("\n\n────────────────────\n\n");
 
   return [
-    "*NOUVELLE COMMANDE | ADI'S FASHION*",
+    `*NOUVELLE COMMANDE | ${APP_NAME.toUpperCase()}*`,
     "────────────────────────",
+    orderReference ? `Référence : #${orderReference.slice(0, 8).toUpperCase()}` : "",
     "",
     "*CLIENT*",
     `Nom : ${customer.fullName}`,
@@ -54,8 +55,45 @@ export function buildWhatsAppOrderMessage(
     .join("\n");
 }
 
-export function openWhatsAppOrder(customer: CustomerOrderInformation, items: CartLineItem[], total: number) {
-  const message = buildWhatsAppOrderMessage(customer, items, total);
-  const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
-  window.open(url, "_blank", "noopener,noreferrer");
+export function getWhatsAppOrderUrl(
+  customer: CustomerOrderInformation,
+  items: CartLineItem[],
+  total: number,
+  orderReference: string,
+) {
+  const message = buildWhatsAppOrderMessage(customer, items, total, orderReference);
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+}
+
+export function getWhatsAppReservationUrl(
+  customer: CustomerOrderInformation,
+  item: CartLineItem,
+  reservationReference: string,
+) {
+  const message = [
+    `*DEMANDE DE RÉSERVATION | ${APP_NAME.toUpperCase()}*`,
+    "────────────────────────",
+    `Référence : #${reservationReference.slice(0, 8).toUpperCase()}`,
+    "",
+    "*CLIENT*",
+    `Nom : ${customer.fullName}`,
+    `Téléphone / WhatsApp : ${customer.phone}`,
+    "",
+    "*ARTICLE À RÉSERVER*",
+    `Produit : ${item.name}`,
+    `Taille : ${item.size || "À préciser"}`,
+    `Couleur : ${item.color || "À préciser"}`,
+    `Quantité : ${item.quantity}`,
+    `Prix indicatif : ${formatPrice(item.price)}`,
+    "",
+    "*LIVRAISON SOUHAITÉE*",
+    `Ville : ${customer.city || "À préciser"}`,
+    `Quartier : ${customer.district || "À préciser"}`,
+    `Adresse : ${customer.address}`,
+    customer.notes?.trim() ? `Instructions : ${customer.notes.trim()}` : "",
+    "",
+    "Merci de confirmer la réservation et la date de disponibilité.",
+  ].filter(Boolean).join("\n");
+
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }

@@ -2,39 +2,87 @@
 
 import Link from "next/link";
 import { ArrowLeft, CalendarClock, ShoppingBag } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 
 import { AddToCartButton } from "@/components/products/AddToCartButton";
 import { ColorSelector } from "@/components/products/ColorSelector";
 import { ProductGallery } from "@/components/products/ProductGallery";
 import { SizeSelector } from "@/components/products/SizeSelector";
-import { WHATSAPP_NUMBER } from "@/lib/constants";
 import { formatPrice } from "@/lib/constants";
+import { getWhatsAppReservationUrl, type CustomerOrderInformation } from "@/lib/whatsapp";
 import type { Product } from "@/types/product";
 
 export function ProductDetailClient({ product }: { product: Product }) {
   const [selectedSize, setSelectedSize] = useState(product.sizes[0] ?? "");
   const [selectedColor, setSelectedColor] = useState(product.colors[0]?.name ?? "");
   const [quantity, setQuantity] = useState(1);
+  const [reservationCustomer, setReservationCustomer] = useState<CustomerOrderInformation>({
+    fullName: "",
+    phone: "",
+    city: "",
+    district: "",
+    address: "",
+    notes: "",
+  });
+  const [isReserving, setIsReserving] = useState(false);
+  const [reservationError, setReservationError] = useState("");
 
   const isComingSoon = product.status === "COMING_SOON";
   const price = useMemo(() => product.price * quantity, [product.price, quantity]);
 
-  const reservationLink = (() => {
-    const message = [
-      "Réservation Adi's Fashion",
-      "",
-      `Produit : ${product.name}`,
-      `Taille : ${selectedSize || "À préciser"}`,
-      `Couleur : ${selectedColor || "À préciser"}`,
-      `Quantité : ${quantity}`,
-      `Client : Je souhaite réserver ce produit.`,
-      "",
-      "Produit actuellement : Bientôt disponible",
-    ].join("\n");
+  async function handleReservation(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setReservationError("");
 
-    return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
-  })();
+    const whatsappWindow = window.open("about:blank", "_blank");
+    if (!whatsappWindow) {
+      setReservationError("Autorisez les fenêtres pop-up pour ouvrir WhatsApp et envoyer votre réservation.");
+      return;
+    }
+
+    whatsappWindow.opener = null;
+    setIsReserving(true);
+
+    try {
+      const response = await fetch("/api/reservations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customer: reservationCustomer,
+          item: {
+            productId: product.id,
+            size: selectedSize,
+            color: selectedColor,
+            quantity,
+          },
+        }),
+      });
+      const result = await response.json();
+
+      if (!response.ok || typeof result.id !== "string") {
+        throw new Error(result.error ?? "Impossible d’enregistrer la réservation.");
+      }
+
+      whatsappWindow.location.href = getWhatsAppReservationUrl(
+        reservationCustomer,
+        {
+          productId: product.id,
+          name: product.name,
+          size: selectedSize,
+          color: selectedColor,
+          price: product.price,
+          quantity,
+          image: product.images[0] ?? "",
+        },
+        result.id,
+      );
+    } catch (submitError) {
+      whatsappWindow.close();
+      setReservationError(submitError instanceof Error ? submitError.message : "Impossible de préparer la réservation.");
+    } finally {
+      setIsReserving(false);
+    }
+  }
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -119,14 +167,24 @@ export function ProductDetailClient({ product }: { product: Product }) {
                 />
               </>
             ) : (
-              <a
-                href={reservationLink}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex w-full items-center justify-center rounded-full bg-[#d95d8d] px-5 py-3 text-base font-semibold text-white transition hover:bg-[#ca4f7a]"
-              >
-                Réserver
-              </a>
+              <form onSubmit={(event) => void handleReservation(event)} className="space-y-3 border-t border-[#f2dfe7] pt-5">
+                <div>
+                  <p className="font-semibold text-[#252125]">Réserver cette pièce</p>
+                  <p className="mt-1 text-xs leading-5 text-[#70656b]">Laissez vos coordonnées pour que le vendeur puisse confirmer la disponibilité.</p>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <input required maxLength={150} value={reservationCustomer.fullName} onChange={(event) => setReservationCustomer((current) => ({ ...current, fullName: event.target.value }))} placeholder="Nom et prénom" aria-label="Nom et prénom" className="w-full rounded-xl border border-[#efdae5] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#d95d8d]" />
+                  <input required maxLength={40} type="tel" value={reservationCustomer.phone} onChange={(event) => setReservationCustomer((current) => ({ ...current, phone: event.target.value }))} placeholder="Téléphone / WhatsApp" aria-label="Téléphone ou WhatsApp" className="w-full rounded-xl border border-[#efdae5] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#d95d8d]" />
+                  <input value={reservationCustomer.city} onChange={(event) => setReservationCustomer((current) => ({ ...current, city: event.target.value }))} placeholder="Ville" aria-label="Ville" className="w-full rounded-xl border border-[#efdae5] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#d95d8d]" />
+                  <input value={reservationCustomer.district} onChange={(event) => setReservationCustomer((current) => ({ ...current, district: event.target.value }))} placeholder="Quartier" aria-label="Quartier" className="w-full rounded-xl border border-[#efdae5] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#d95d8d]" />
+                </div>
+                <textarea required maxLength={2000} value={reservationCustomer.address} onChange={(event) => setReservationCustomer((current) => ({ ...current, address: event.target.value }))} placeholder="Adresse de livraison" aria-label="Adresse de livraison" rows={2} className="w-full rounded-xl border border-[#efdae5] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#d95d8d]" />
+                <textarea value={reservationCustomer.notes} onChange={(event) => setReservationCustomer((current) => ({ ...current, notes: event.target.value }))} placeholder="Précision facultative" aria-label="Précision facultative" rows={2} className="w-full rounded-xl border border-[#efdae5] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#d95d8d]" />
+                {reservationError ? <p role="alert" className="text-sm text-[#b14d6c]">{reservationError}</p> : null}
+                <button type="submit" disabled={isReserving} className="inline-flex w-full items-center justify-center rounded-full bg-[#d95d8d] px-5 py-3 text-base font-semibold text-white transition hover:bg-[#ca4f7a] disabled:cursor-wait disabled:opacity-70">
+                  {isReserving ? "Enregistrement..." : "Enregistrer et réserver sur WhatsApp"}
+                </button>
+              </form>
             )}
           </div>
 
