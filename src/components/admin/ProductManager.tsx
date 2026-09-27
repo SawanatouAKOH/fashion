@@ -204,6 +204,13 @@ export function ProductManager() {
       return;
     }
 
+    let normalizedEstimatedArrival = draft.estimatedArrival || "";
+    if (draft.status === "COMING_SOON" && !normalizedEstimatedArrival) {
+      const fallbackDate = new Date();
+      fallbackDate.setDate(fallbackDate.getDate() + 30);
+      normalizedEstimatedArrival = fallbackDate.toISOString().slice(0, 10);
+    }
+
     const payload = {
       id: draft.id,
       name: trimmedName,
@@ -213,7 +220,7 @@ export function ProductManager() {
       stock: Number(draft.stock || 0),
       categoryId: draft.categoryId,
       status: draft.status,
-      estimatedArrival: draft.estimatedArrival || null,
+      estimatedArrival: normalizedEstimatedArrival || null,
       sizes: filteredSizes,
       colors: filteredColors,
       images: filteredImages,
@@ -385,7 +392,18 @@ export function ProductManager() {
 
             <div className="space-y-2">
               <label className="block text-sm font-medium text-[#3a3739]">Statut</label>
-              <select value={draft.status} onChange={(event) => setDraft((current) => ({ ...current, status: event.target.value as ProductStatus }))} className="w-full rounded-2xl border border-[#ecdfe6] bg-[#fffafc] px-4 py-3 outline-none transition focus:border-[#d95d8d]">
+              <select value={draft.status} onChange={(event) => {
+                const nextStatus = event.target.value as ProductStatus;
+                const nextEstimatedArrival = nextStatus === "COMING_SOON" && !draft.estimatedArrival
+                  ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+                  : draft.estimatedArrival;
+
+                setDraft((current) => ({
+                  ...current,
+                  status: nextStatus,
+                  estimatedArrival: nextEstimatedArrival,
+                }));
+              }} className="w-full rounded-2xl border border-[#ecdfe6] bg-[#fffafc] px-4 py-3 outline-none transition focus:border-[#d95d8d]">
                 <option value="AVAILABLE">AVAILABLE</option>
                 <option value="COMING_SOON">COMING_SOON</option>
               </select>
@@ -394,7 +412,7 @@ export function ProductManager() {
 
           {draft.status === "COMING_SOON" ? (
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-[#3a3739]">Date estimée d'arrivée</label>
+              <label className="block text-sm font-medium text-[#3a3739]">Date estimée d&apos;arrivée</label>
               <input type="date" value={draft.estimatedArrival} onChange={(event) => setDraft((current) => ({ ...current, estimatedArrival: event.target.value }))} className="w-full rounded-2xl border border-[#ecdfe6] bg-[#fffafc] px-4 py-3 outline-none transition focus:border-[#d95d8d]" />
             </div>
           ) : null}

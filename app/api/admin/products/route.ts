@@ -34,6 +34,24 @@ function getCategoryId(nameOrId: string | undefined) {
   return nameOrId;
 }
 
+function normalizeEstimatedArrival(value: string | null | undefined, status: "AVAILABLE" | "COMING_SOON") {
+  if (!value) {
+    if (status === "COMING_SOON") {
+      const fallback = new Date();
+      fallback.setDate(fallback.getDate() + 30);
+      return fallback;
+    }
+    return null;
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    throw new Error("Date d’arrivée invalide.");
+  }
+
+  return date;
+}
+
 export async function GET(request: Request) {
   const session = await requireAdmin();
 
@@ -72,46 +90,55 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
   }
 
-  const payload = await request.json();
-  const name = String(payload.name ?? "").trim();
-  const description = String(payload.description ?? "").trim();
-  const price = Number(payload.price ?? 0);
-  const stock = Number(payload.stock ?? 0);
-  const categoryId = getCategoryId(payload.categoryId);
-  const status = payload.status === "COMING_SOON" ? "COMING_SOON" : "AVAILABLE";
-  const images = Array.isArray(payload.images) ? payload.images.filter(Boolean) : [];
-  const sizes = Array.isArray(payload.sizes) ? payload.sizes.filter(Boolean) : [];
-  const colors = Array.isArray(payload.colors) ? payload.colors.filter(Boolean) : [];
-  const estimatedArrival = payload.estimatedArrival ? new Date(payload.estimatedArrival) : null;
+  try {
+    const payload = await request.json();
+    const name = String(payload.name ?? "").trim();
+    const description = String(payload.description ?? "").trim();
+    const price = Number(payload.price ?? 0);
+    const stock = Number(payload.stock ?? 0);
+    const categoryId = getCategoryId(payload.categoryId);
+    const status = payload.status === "COMING_SOON" ? "COMING_SOON" : "AVAILABLE";
+    const images = Array.isArray(payload.images) ? payload.images.filter(Boolean) : [];
+    const sizes = Array.isArray(payload.sizes) ? payload.sizes.filter(Boolean) : [];
+    const colors = Array.isArray(payload.colors) ? payload.colors.filter(Boolean) : [];
+    const estimatedArrival = normalizeEstimatedArrival(payload.estimatedArrival, status);
 
-  if (!name || !description || !categoryId || price <= 0 || images.length === 0) {
-    return NextResponse.json({ error: "Nom, description, catégorie, prix et au moins une image sont obligatoires." }, { status: 400 });
+    if (!name || !description || !categoryId || price <= 0 || images.length === 0) {
+      return NextResponse.json({ error: "Nom, description, catégorie, prix et au moins une image sont obligatoires." }, { status: 400 });
+    }
+
+    if (status === "COMING_SOON" && !estimatedArrival) {
+      return NextResponse.json({ error: "Une date d’arrivée est obligatoire pour un produit à venir." }, { status: 400 });
+    }
+
+    const product = await prisma.product.create({
+      data: {
+        name,
+        slug: normalizeSlug(payload.slug || name),
+        description,
+        price,
+        stock,
+        categoryId,
+        status,
+        images,
+        sizes,
+        colors,
+        featured: Boolean(payload.featured),
+        isNew: Boolean(payload.isNew),
+        estimatedArrival,
+      },
+      include: { category: true },
+    });
+
+    revalidatePath("/admin");
+    revalidatePath("/products");
+    revalidatePath("/");
+
+    return NextResponse.json(product, { status: 201 });
+  } catch (error) {
+    console.error("Admin create product error", error);
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Impossible de créer le produit." }, { status: 400 });
   }
-
-  const product = await prisma.product.create({
-    data: {
-      name,
-      slug: normalizeSlug(payload.slug || name),
-      description,
-      price,
-      stock,
-      categoryId,
-      status,
-      images,
-      sizes,
-      colors,
-      featured: Boolean(payload.featured),
-      isNew: Boolean(payload.isNew),
-      estimatedArrival,
-    },
-    include: { category: true },
-  });
-
-  revalidatePath("/admin");
-  revalidatePath("/products");
-  revalidatePath("/");
-
-  return NextResponse.json(product, { status: 201 });
 }
 
 export async function PUT(request: Request) {
@@ -121,48 +148,57 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
   }
 
-  const payload = await request.json();
-  const id = String(payload.id ?? "");
-  const name = String(payload.name ?? "").trim();
-  const description = String(payload.description ?? "").trim();
-  const price = Number(payload.price ?? 0);
-  const stock = Number(payload.stock ?? 0);
-  const categoryId = getCategoryId(payload.categoryId);
-  const status = payload.status === "COMING_SOON" ? "COMING_SOON" : "AVAILABLE";
-  const images = Array.isArray(payload.images) ? payload.images.filter(Boolean) : [];
-  const sizes = Array.isArray(payload.sizes) ? payload.sizes.filter(Boolean) : [];
-  const colors = Array.isArray(payload.colors) ? payload.colors.filter(Boolean) : [];
-  const estimatedArrival = payload.estimatedArrival ? new Date(payload.estimatedArrival) : null;
+  try {
+    const payload = await request.json();
+    const id = String(payload.id ?? "");
+    const name = String(payload.name ?? "").trim();
+    const description = String(payload.description ?? "").trim();
+    const price = Number(payload.price ?? 0);
+    const stock = Number(payload.stock ?? 0);
+    const categoryId = getCategoryId(payload.categoryId);
+    const status = payload.status === "COMING_SOON" ? "COMING_SOON" : "AVAILABLE";
+    const images = Array.isArray(payload.images) ? payload.images.filter(Boolean) : [];
+    const sizes = Array.isArray(payload.sizes) ? payload.sizes.filter(Boolean) : [];
+    const colors = Array.isArray(payload.colors) ? payload.colors.filter(Boolean) : [];
+    const estimatedArrival = normalizeEstimatedArrival(payload.estimatedArrival, status);
 
-  if (!id || !name || !description || !categoryId || price <= 0 || images.length === 0) {
-    return NextResponse.json({ error: "Produit invalide. Vérifiez les champs requis." }, { status: 400 });
+    if (!id || !name || !description || !categoryId || price <= 0 || images.length === 0) {
+      return NextResponse.json({ error: "Produit invalide. Vérifiez les champs requis." }, { status: 400 });
+    }
+
+    if (status === "COMING_SOON" && !estimatedArrival) {
+      return NextResponse.json({ error: "Une date d’arrivée est obligatoire pour un produit à venir." }, { status: 400 });
+    }
+
+    const product = await prisma.product.update({
+      where: { id },
+      data: {
+        name,
+        slug: normalizeSlug(payload.slug || name),
+        description,
+        price,
+        stock,
+        categoryId,
+        status,
+        images,
+        sizes,
+        colors,
+        featured: Boolean(payload.featured),
+        isNew: Boolean(payload.isNew),
+        estimatedArrival,
+      },
+      include: { category: true },
+    });
+
+    revalidatePath("/admin");
+    revalidatePath("/products");
+    revalidatePath("/");
+
+    return NextResponse.json(product);
+  } catch (error) {
+    console.error("Admin update product error", error);
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Impossible de modifier le produit." }, { status: 400 });
   }
-
-  const product = await prisma.product.update({
-    where: { id },
-    data: {
-      name,
-      slug: normalizeSlug(payload.slug || name),
-      description,
-      price,
-      stock,
-      categoryId,
-      status,
-      images,
-      sizes,
-      colors,
-      featured: Boolean(payload.featured),
-      isNew: Boolean(payload.isNew),
-      estimatedArrival,
-    },
-    include: { category: true },
-  });
-
-  revalidatePath("/admin");
-  revalidatePath("/products");
-  revalidatePath("/");
-
-  return NextResponse.json(product);
 }
 
 export async function DELETE(request: Request) {

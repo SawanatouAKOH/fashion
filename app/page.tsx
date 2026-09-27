@@ -38,53 +38,55 @@ export default async function HomePage() {
 
   return (
     <>
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
-        <div className="grid items-center gap-8 overflow-hidden rounded-[36px] border border-[#f4dfe8] bg-gradient-to-br from-[#fff8fb] via-white to-[#fff4f8] p-6 shadow-[0_12px_35px_rgba(19,19,19,0.04)] lg:grid-cols-[1.1fr_0.9fr] lg:p-10">
-          <div className="space-y-6">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#f3d9e6] bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[#6f5661]">
-              <Sparkles className="h-3.5 w-3.5 text-[#d95d8d]" />
-              Boutique premium
+      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
+        <div className="overflow-hidden rounded-[36px] border border-[#f3dfe7] bg-gradient-to-br from-[#fff8fb] via-white to-[#fff3f7] p-6 shadow-[0_18px_42px_rgba(17,17,17,0.05)] lg:p-10">
+          <div className="grid items-center gap-8 lg:grid-cols-[1.15fr_0.85fr]">
+            <div className="space-y-7">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#f2d9e5] bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#735e66]">
+                <Sparkles className="h-3.5 w-3.5 text-[#d95d8d]" />
+                Boutique premium
+              </div>
+
+              <div className="space-y-4">
+                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#c06589]">{APP_NAME}</p>
+                <h1 className="text-4xl font-semibold leading-tight text-[#171719] sm:text-5xl lg:text-6xl">
+                  L&apos;élégance et la qualité
+                </h1>
+                <p className="max-w-xl text-lg leading-8 text-[#555459]">
+                  Une sélection de pièces raffinées pour sublimer chaque moment : élégance, confort et assurance dans chaque détail.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Link href="/products" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#d95d8d] px-6 py-3 text-base font-semibold text-white shadow-[0_12px_26px_rgba(217,93,141,0.25)] transition hover:bg-[#cd496f]">
+                  Découvrir la boutique
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link href="/categories" className="inline-flex items-center justify-center rounded-full border border-[#efd8e2] bg-white px-6 py-3 text-base font-semibold text-[#2b2b2d] transition hover:border-[#d8bfd0] hover:bg-[#fff8fb]">
+                  Voir les catégories
+                </Link>
+              </div>
+
+              <div className="flex flex-wrap gap-3 pt-2">
+                {highlights.map((item) => (
+                  <span key={item} className="inline-flex items-center gap-2 rounded-full border border-[#f1dbe5] bg-white/80 px-3 py-1.5 text-sm text-[#4b4649]">
+                    <Check className="h-4 w-4 text-[#d95d8d]" />
+                    {item}
+                  </span>
+                ))}
+              </div>
             </div>
 
-            <div className="space-y-4">
-              <h1 className="text-4xl font-semibold leading-tight text-[#181818] sm:text-5xl lg:text-6xl">
-                {APP_NAME}
-              </h1>
-              <p className="text-xl font-medium text-[#d95d8d]">{APP_TAGLINE}</p>
-              <p className="max-w-xl text-base leading-7 text-[#5d5a5d]">
-                Une sélection de pièces raffinées pour sublimer chaque moment : élégance, confort et assurance dans chaque détail.
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Link href="/products" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#d95d8d] px-6 py-3 text-base font-semibold text-white transition hover:bg-[#ca4f7a]">
-                Découvrir la collection
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link href="/categories" className="inline-flex items-center justify-center rounded-full border border-[#efdae4] bg-white px-6 py-3 text-base font-semibold text-[#2a2a2b] transition hover:border-[#d8c3ce]">
-                Explorer les catégories
-              </Link>
-            </div>
-
-            <div className="flex flex-wrap gap-3 pt-2 text-sm text-[#4a4347]">
-              {highlights.map((item) => (
-                <span key={item} className="inline-flex items-center gap-2 rounded-full border border-[#f1dbe5] bg-white/80 px-3 py-1.5">
-                  <Check className="h-4 w-4 text-[#d95d8d]" />
-                  {item}
-                </span>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {heroImages.map((image, index) => (
+                <div
+                  key={image.alt}
+                  className={`overflow-hidden rounded-[28px] border border-[#f2dfe8] bg-white p-2 shadow-[0_12px_28px_rgba(17,17,17,0.05)] ${index === 1 ? "translate-y-8" : ""}`}
+                >
+                  <img src={image.src} alt={image.alt} className="h-64 w-full rounded-[22px] object-cover object-center sm:h-72" />
+                </div>
               ))}
             </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            {heroImages.map((image, index) => (
-              <div
-                key={image.alt}
-                className={`overflow-hidden rounded-[30px] border border-[#f2dde8] bg-white p-2 shadow-[0_12px_28px_rgba(17,17,17,0.04)] ${index === 1 ? "mt-10" : ""}`}
-              >
-                <img src={image.src} alt={image.alt} className="h-64 w-full rounded-[24px] object-cover object-center" />
-              </div>
-            ))}
           </div>
         </div>
       </section>
