@@ -11,7 +11,7 @@ export default function CartPage() {
   const { items } = useCart();
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+    <main className="mx-auto min-h-[60vh] max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
       <div className="mb-8 flex items-center justify-between gap-4">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#c06589]">Panier</p>
@@ -25,7 +25,7 @@ export default function CartPage() {
       </div>
 
       {items.length === 0 ? (
-        <div className="rounded-[28px] border border-[#f2dfe7] bg-[#fffafc] p-8 text-center shadow-[0_8px_18px_rgba(18,18,18,0.03)]">
+        <div className="border-y border-[#f2dfe7] bg-[#fffafc] p-8 text-center sm:p-12">
           <ShoppingBag className="mx-auto h-12 w-12 text-[#d95d8d]" />
           <h2 className="mt-4 text-2xl font-semibold text-[#1d1d1d]">Votre panier est vide</h2>
           <p className="mt-2 text-[#5d5d5d]">Ajoutez une pièce à votre sélection pour la commander.</p>

@@ -43,10 +43,10 @@ export function ProductDetailClient({ product }: { product: Product }) {
         Retour au catalogue
       </Link>
 
-      <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+      <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
         <ProductGallery images={product.images} name={product.name} />
 
-        <div className="space-y-6">
+        <div className="space-y-5 lg:py-3">
           <div>
             <p className="text-sm uppercase tracking-[0.2em] text-[#a06d85]">{product.category}</p>
             <h1 className="mt-2 text-3xl font-semibold text-[#191919] sm:text-4xl">{product.name}</h1>
@@ -69,7 +69,7 @@ export function ProductDetailClient({ product }: { product: Product }) {
             </div>
           ) : null}
 
-          <div className="space-y-6 rounded-[24px] border border-[#f2dfe7] bg-[#fffafc] p-5">
+          <div className="space-y-6 border-y border-[#f2dfe7] bg-[#fffafc] p-5 sm:rounded-2xl sm:border">
             {product.sizes.length > 0 ? (
               <SizeSelector sizes={product.sizes} selectedSize={selectedSize} onSelect={setSelectedSize} />
             ) : null}

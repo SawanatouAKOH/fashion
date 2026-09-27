@@ -23,7 +23,7 @@ export default async function CategoryDetailPage({
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <section className="mb-8 overflow-hidden rounded-[32px] border border-[#f4dfe8] bg-gradient-to-br from-[#fff8fb] via-white to-[#fff4f8] p-6 shadow-[0_12px_30px_rgba(18,18,18,0.04)] sm:p-8">
+      <section className="mb-7 border-b border-[#f1dfe7] pb-6 sm:mb-9 sm:pb-8">
         <Link href="/categories" className="inline-flex items-center gap-2 text-sm font-medium text-[#4d4346] hover:text-[#d95d8d]">
           <ArrowLeft className="h-4 w-4" />
           Retour aux catégories

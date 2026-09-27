@@ -6,7 +6,7 @@ export default async function CategoriesPage() {
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <section className="mb-8 overflow-hidden rounded-[32px] border border-[#f4dfe8] bg-gradient-to-br from-[#fff8fb] via-white to-[#fff4f8] p-6 shadow-[0_12px_30px_rgba(18,18,18,0.04)] sm:p-8">
+      <section className="mb-7 border-b border-[#f1dfe7] pb-6 sm:mb-9 sm:pb-8">
         <div className="max-w-2xl">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#c06589]">Catégories</p>
           <h1 className="mt-2 text-3xl font-semibold text-[#181818] sm:text-4xl">Explorez nos univers</h1>
@@ -22,12 +22,13 @@ export default async function CategoriesPage() {
         </span>
       </div>
 
-      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {categories.map((category) => (
           <CategoryCard
             key={category.id}
             name={category.name}
             count={products.filter((product) => product.category === category.name).length}
+              image={products.find((product) => product.category === category.name)?.images[0]}
           />
         ))}
       </div>

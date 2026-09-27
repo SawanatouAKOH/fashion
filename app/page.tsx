@@ -1,10 +1,11 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Check, Sparkles, Star } from "lucide-react";
 
 import { CategoryCard } from "@/components/products/CategoryCard";
 import { ProductGrid } from "@/components/products/ProductGrid";
 import { getCategories, getFeaturedProducts, getNewProducts } from "@/data/products";
-import { APP_NAME, APP_TAGLINE } from "@/lib/constants";
+import { APP_NAME } from "@/lib/constants";
 
 export default async function HomePage() {
   const [featuredProducts, newProducts, categories] = await Promise.all([
@@ -19,29 +20,23 @@ export default async function HomePage() {
     "Commande facile via WhatsApp",
   ];
 
-  const editorialHighlights = [
-    { value: "4.9/5", label: "Avis clients" },
-    { value: "24h", label: "Traitement rapide" },
-    { value: "+200", label: "Pièces sélectionnées" },
-  ];
-
   const heroImages = [
     {
-      src: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=900&q=80",
-      alt: "Modèle en tenue élégante",
+      src: newProducts[0]?.images[0] ?? featuredProducts[0]?.images[0] ?? "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=900&q=80",
+      alt: newProducts[0]?.name ?? featuredProducts[0]?.name ?? "Modèle en tenue élégante",
     },
     {
-      src: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=900&q=80",
-      alt: "Portrait de mode premium",
+      src: newProducts[1]?.images[0] ?? featuredProducts[1]?.images[0] ?? "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=900&q=80",
+      alt: newProducts[1]?.name ?? featuredProducts[1]?.name ?? "Portrait de mode premium",
     },
   ];
 
   return (
     <>
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
-        <div className="overflow-hidden rounded-[36px] border border-[#f3dfe7] bg-gradient-to-br from-[#fff8fb] via-white to-[#fff3f7] p-6 shadow-[0_18px_42px_rgba(17,17,17,0.05)] lg:p-10">
-          <div className="grid items-center gap-8 lg:grid-cols-[1.15fr_0.85fr]">
-            <div className="space-y-7">
+      <section className="mx-auto max-w-7xl px-4 pb-5 pt-5 sm:px-6 lg:px-8 lg:pb-8 lg:pt-8">
+        <div className="overflow-hidden rounded-[30px] border border-[#f3dfe7] bg-gradient-to-br from-[#fff8fb] via-white to-[#fff3f7] p-4 shadow-[0_18px_42px_rgba(17,17,17,0.05)] sm:p-7 lg:rounded-[36px] lg:p-9">
+          <div className="grid items-center gap-5 lg:grid-cols-[0.9fr_1.1fr] lg:gap-9">
+            <div className="space-y-4 lg:space-y-6">
               <div className="inline-flex items-center gap-2 rounded-full border border-[#f2d9e5] bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#735e66]">
                 <Sparkles className="h-3.5 w-3.5 text-[#d95d8d]" />
                 Boutique premium
@@ -49,25 +44,25 @@ export default async function HomePage() {
 
               <div className="space-y-4">
                 <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#c06589]">{APP_NAME}</p>
-                <h1 className="text-4xl font-semibold leading-tight text-[#171719] sm:text-5xl lg:text-6xl">
+                <h1 className="text-3xl font-semibold leading-tight text-[#171719] sm:text-4xl lg:text-5xl">
                   L&apos;élégance et la qualité
                 </h1>
-                <p className="max-w-xl text-lg leading-8 text-[#555459]">
+                <p className="max-w-xl text-sm leading-6 text-[#555459] sm:text-base sm:leading-7">
                   Une sélection de pièces raffinées pour sublimer chaque moment : élégance, confort et assurance dans chaque détail.
                 </p>
               </div>
 
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <Link href="/products" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#d95d8d] px-6 py-3 text-base font-semibold text-white shadow-[0_12px_26px_rgba(217,93,141,0.25)] transition hover:bg-[#cd496f]">
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <Link href="/products" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#d95d8d] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_12px_26px_rgba(217,93,141,0.25)] transition hover:bg-[#cd496f] sm:text-base">
                   Découvrir la boutique
                   <ArrowRight className="h-4 w-4" />
                 </Link>
-                <Link href="/categories" className="inline-flex items-center justify-center rounded-full border border-[#efd8e2] bg-white px-6 py-3 text-base font-semibold text-[#2b2b2d] transition hover:border-[#d8bfd0] hover:bg-[#fff8fb]">
+                <Link href="/categories" className="inline-flex items-center justify-center rounded-full border border-[#efd8e2] bg-white px-5 py-2.5 text-sm font-semibold text-[#2b2b2d] transition hover:border-[#d8bfd0] hover:bg-[#fff8fb] sm:text-base">
                   Voir les catégories
                 </Link>
               </div>
 
-              <div className="flex flex-wrap gap-3 pt-2">
+              <div className="hidden flex-wrap gap-2 pt-1 sm:flex">
                 {highlights.map((item) => (
                   <span key={item} className="inline-flex items-center gap-2 rounded-full border border-[#f1dbe5] bg-white/80 px-3 py-1.5 text-sm text-[#4b4649]">
                     <Check className="h-4 w-4 text-[#d95d8d]" />
@@ -77,13 +72,16 @@ export default async function HomePage() {
               </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3">
               {heroImages.map((image, index) => (
                 <div
                   key={image.alt}
-                  className={`overflow-hidden rounded-[28px] border border-[#f2dfe8] bg-white p-2 shadow-[0_12px_28px_rgba(17,17,17,0.05)] ${index === 1 ? "translate-y-8" : ""}`}
+                  className={`relative aspect-[4/5] overflow-hidden rounded-[20px] border border-[#f2dfe8] bg-[#fff4f8] shadow-[0_12px_28px_rgba(17,17,17,0.05)] sm:rounded-[25px] ${index === 1 ? "mt-5 sm:mt-8" : ""}`}
                 >
-                  <img src={image.src} alt={image.alt} className="h-64 w-full rounded-[22px] object-cover object-center sm:h-72" />
+                  <Image src={image.src} alt={image.alt} fill sizes="(max-width: 640px) 45vw, 30vw" priority={index === 0} className="object-cover" />
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-3 pb-3 pt-10 sm:px-4 sm:pb-4">
+                    <p className="line-clamp-1 text-xs font-semibold text-white sm:text-sm">{image.alt}</p>
+                  </div>
                 </div>
               ))}
             </div>
@@ -91,27 +89,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mb-6 overflow-hidden rounded-[30px] border border-[#f4dfe8] bg-gradient-to-br from-[#fff7fa] via-white to-[#fff1f6] p-5 shadow-[0_14px_32px_rgba(17,17,17,0.04)] sm:p-7">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#c06589]">Sélection du moment</p>
-              <h2 className="mt-2 text-2xl font-semibold text-[#191919] sm:text-3xl">Une mode qui raconte votre style.</h2>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-3">
-              {editorialHighlights.map((item) => (
-                <div key={item.label} className="rounded-[22px] border border-[#f3dfe7] bg-white px-4 py-3 text-center shadow-sm">
-                  <p className="text-xl font-semibold text-[#1d1b1c]">{item.value}</p>
-                  <p className="mt-1 text-xs uppercase tracking-[0.16em] text-[#7a6a71]">{item.label}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <section id="nouveautes" className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
         <div className="mb-6 flex items-center justify-between gap-3">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#c06589]">Les nouveautés</p>
@@ -120,10 +98,10 @@ export default async function HomePage() {
           <Link href="/products" className="text-sm font-medium text-[#d95d8d] hover:text-[#ca4f7a]">Voir plus</Link>
         </div>
 
-        <ProductGrid products={newProducts} />
+        <ProductGrid products={newProducts.slice(0, 8)} />
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
         <div className="mb-6 flex items-center justify-between gap-3">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#c06589]">Best sellers</p>
@@ -132,10 +110,10 @@ export default async function HomePage() {
           <Link href="/products" className="text-sm font-medium text-[#d95d8d] hover:text-[#ca4f7a]">Voir toute la collection</Link>
         </div>
 
-        <ProductGrid products={featuredProducts.length > 0 ? featuredProducts : newProducts} />
+        <ProductGrid products={(featuredProducts.length > 0 ? featuredProducts : newProducts).slice(0, 4)} />
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
         <div className="rounded-[32px] border border-[#f4dfe8] bg-white p-6 shadow-[0_12px_28px_rgba(17,17,17,0.03)] sm:p-8">
           <div className="mb-6 flex items-center justify-between gap-3">
             <div>
@@ -178,9 +156,17 @@ export default async function HomePage() {
         </div>
 
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-5">
-          {categories.map((category) => (
-            <CategoryCard key={category.id} name={category.name} count={0} />
-          ))}
+          {categories.map((category) => {
+            const categoryProducts = [...newProducts, ...featuredProducts].filter((product) => product.category === category.name);
+            return (
+              <CategoryCard
+                key={category.id}
+                name={category.name}
+                count={categoryProducts.length}
+                image={categoryProducts[0]?.images[0]}
+              />
+            );
+          })}
         </div>
       </section>
 

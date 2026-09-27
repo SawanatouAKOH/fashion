@@ -4,12 +4,21 @@ import { ArrowRight } from "lucide-react";
 import { ProductGrid } from "@/components/products/ProductGrid";
 import { getProducts } from "@/data/products";
 
-export default async function ProductsPage() {
+export default async function ProductsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ search?: string }>;
+}) {
+  const { search = "" } = await searchParams;
   const products = await getProducts();
+  const normalizedSearch = search.trim().toLocaleLowerCase("fr");
+  const visibleProducts = normalizedSearch
+    ? products.filter((product) => `${product.name} ${product.category} ${product.description}`.toLocaleLowerCase("fr").includes(normalizedSearch))
+    : products;
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <section className="mb-8 overflow-hidden rounded-[32px] border border-[#f4dfe8] bg-gradient-to-br from-[#fff8fb] via-white to-[#fff4f8] p-6 shadow-[0_12px_30px_rgba(18,18,18,0.04)] sm:p-8">
+      <section className="mb-7 border-b border-[#f1dfe7] pb-6 sm:mb-9 sm:pb-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#c06589]">Catalogue</p>
@@ -28,13 +37,13 @@ export default async function ProductsPage() {
 
       <div className="mb-6 flex flex-wrap items-center gap-3">
         <span className="rounded-full bg-[#fff1f7] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-[#c06589]">
-          {products.length} articles
+          {visibleProducts.length} articles
         </span>
         <span className="rounded-full border border-[#f2dfe7] bg-white px-3 py-1.5 text-xs font-medium text-[#4d474a]">Nouveautés</span>
         <span className="rounded-full border border-[#f2dfe7] bg-white px-3 py-1.5 text-xs font-medium text-[#4d474a]">Édition premium</span>
       </div>
 
-      <ProductGrid products={products} />
+      <ProductGrid products={visibleProducts} />
     </main>
   );
 }

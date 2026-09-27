@@ -23,9 +23,10 @@ export function Footer() {
         <div>
           <h3 className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-[#2f2f30]">Navigation</h3>
           <ul className="space-y-3 text-sm text-[#555]">
-            <li><Link href="/products" className="hover:text-[#d95d8d]">Catalogue</Link></li>
-            <li><Link href="/categories" className="hover:text-[#d95d8d]">Catégories</Link></li>
-            <li><Link href="/cart" className="hover:text-[#d95d8d]">Panier</Link></li>
+            <li><Link href="/products" className="hover:text-[#d95d8d]">Toute la collection</Link></li>
+            <li><Link href="/categories" className="hover:text-[#d95d8d]">Nos catégories</Link></li>
+            <li><Link href="/#nouveautes" className="hover:text-[#d95d8d]">Nouveautés</Link></li>
+            <li><Link href="/cart" className="hover:text-[#d95d8d]">Mon panier</Link></li>
           </ul>
         </div>
 

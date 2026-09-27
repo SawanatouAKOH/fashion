@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
 import { getCategorySlug } from "@/lib/constants";
@@ -22,30 +23,29 @@ const categoryBadges: Record<string, string> = {
 export function CategoryCard({
   name,
   count,
+  image,
 }: {
   name: string;
   count: number;
+  image?: string;
 }) {
   const href = `/categories/${getCategorySlug(name)}`;
 
   return (
     <Link
       href={href}
-      className={`group block overflow-hidden rounded-[30px] border border-[#f7dfe9] bg-gradient-to-br ${categoryBackgrounds[name] ?? "from-[#fbeaf1] to-[#fffafc]"} p-5 text-left shadow-[0_10px_30px_rgba(17,17,17,0.04)] transition hover:-translate-y-1 hover:shadow-[0_16px_36px_rgba(17,17,17,0.06)]`}
+      className="group relative block aspect-[4/3] overflow-hidden rounded-[22px] border border-[#f7dfe9] bg-[#fff4f8] text-left shadow-[0_10px_30px_rgba(17,17,17,0.04)] transition hover:-translate-y-1 hover:shadow-[0_16px_36px_rgba(17,17,17,0.08)]"
     >
-      <div className="mb-5 flex items-center justify-between">
-        <span className="rounded-full bg-white/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#555]">
-          {count} pièces
-        </span>
-        <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/80 text-[#d95d8d] shadow-sm">
+      {image ? <Image src={image} alt={`Collection ${name}`} fill sizes="(max-width: 768px) 50vw, 33vw" className="object-cover transition duration-500 group-hover:scale-105" /> : null}
+      <div className={`absolute inset-0 ${image ? "bg-gradient-to-t from-black/70 via-black/10 to-transparent" : `bg-gradient-to-br ${categoryBackgrounds[name] ?? "from-[#fbeaf1] to-[#fffafc]"}`}`} />
+      <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4 sm:p-5">
+        <div>
+          <p className={`text-[10px] font-semibold uppercase ${image ? "text-white/80" : "text-[#a36d85]"}`}>{categoryBadges[name] ?? "Collection"} · {count} pièces</p>
+          <h3 className={`mt-1 text-xl font-semibold ${image ? "text-white" : "text-[#181818]"}`}>{name}</h3>
+        </div>
+        <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-[#d95d8d] shadow-sm">
           <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
         </span>
-      </div>
-
-      <div className="rounded-[22px] bg-white/55 p-4 backdrop-blur-sm">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#a36d85]">{categoryBadges[name] ?? "Collection"}</p>
-        <h3 className="mt-2 text-2xl font-semibold text-[#181818]">{name}</h3>
-        <p className="mt-2 text-sm leading-6 text-[#5d5d5d]">Découvrir la sélection {name.toLowerCase()} et trouver la pièce qui vous ressemble.</p>
       </div>
     </Link>
   );

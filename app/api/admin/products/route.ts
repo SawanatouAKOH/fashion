@@ -22,6 +22,29 @@ function normalizeSlug(value: string) {
     .replace(/^-+|-+$/g, "");
 }
 
+async function getAvailableProductSlug(value: string, excludedProductId?: string) {
+  const baseSlug = normalizeSlug(value) || "produit";
+  let slug = baseSlug;
+  let suffix = 2;
+
+  while (await prisma.product.findFirst({
+    where: {
+      slug,
+      ...(excludedProductId ? { id: { not: excludedProductId } } : {}),
+    },
+    select: { id: true },
+  })) {
+    slug = `${baseSlug}-${suffix}`;
+    suffix += 1;
+  }
+
+  return slug;
+}
+
+function isUniqueConstraintError(error: unknown): error is { code: string } {
+  return typeof error === "object" && error !== null && "code" in error && error.code === "P2002";
+}
+
 function getCategoryId(nameOrId: string | undefined) {
   if (!nameOrId) {
     return null;
@@ -111,10 +134,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Une date d’arrivée est obligatoire pour un produit à venir." }, { status: 400 });
     }
 
+    const slug = await getAvailableProductSlug(String(payload.slug || name));
+
     const product = await prisma.product.create({
       data: {
         name,
-        slug: normalizeSlug(payload.slug || name),
+        slug,
         description,
         price,
         stock,
@@ -137,6 +162,9 @@ export async function POST(request: Request) {
     return NextResponse.json(product, { status: 201 });
   } catch (error) {
     console.error("Admin create product error", error);
+    if (isUniqueConstraintError(error)) {
+      return NextResponse.json({ error: "Ce slug vient d’être utilisé. Réessayez l’enregistrement." }, { status: 409 });
+    }
     return NextResponse.json({ error: error instanceof Error ? error.message : "Impossible de créer le produit." }, { status: 400 });
   }
 }
@@ -170,11 +198,13 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "Une date d’arrivée est obligatoire pour un produit à venir." }, { status: 400 });
     }
 
+    const slug = await getAvailableProductSlug(String(payload.slug || name), id);
+
     const product = await prisma.product.update({
       where: { id },
       data: {
         name,
-        slug: normalizeSlug(payload.slug || name),
+        slug,
         description,
         price,
         stock,
@@ -197,6 +227,9 @@ export async function PUT(request: Request) {
     return NextResponse.json(product);
   } catch (error) {
     console.error("Admin update product error", error);
+    if (isUniqueConstraintError(error)) {
+      return NextResponse.json({ error: "Ce slug vient d’être utilisé. Réessayez l’enregistrement." }, { status: 409 });
+    }
     return NextResponse.json({ error: error instanceof Error ? error.message : "Impossible de modifier le produit." }, { status: 400 });
   }
 }
