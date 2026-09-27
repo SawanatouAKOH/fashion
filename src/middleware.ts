@@ -47,28 +47,45 @@ export function middleware(request: NextRequest) {
 
   const token = getSessionToken(request);
   const payload = token ? decodeJwtPayload(token) : null;
-  const isAdmin = payload?.role === "ADMIN";
+  const payloadRole = (payload as { role?: string; user?: { role?: string } } | null)?.role ?? (payload as { role?: string; user?: { role?: string } } | null)?.user?.role ?? null;
+  const isAdmin = payloadRole === "ADMIN";
+
+  console.log("[AUTH DEBUG] middleware", {
+    pathname,
+    hasToken: Boolean(token),
+    payloadRole,
+    isAdmin,
+    isLoginPage,
+    isProtectedAdminPage,
+    isProtectedApiAdminRoute,
+  });
 
   if (isProtectedApiAdminRoute && !token) {
+    console.log("[AUTH DEBUG] middleware decision", { pathname, authenticated: false, role: payloadRole, decision: "API_REDIRECT_401" });
     return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   }
 
   if (isProtectedApiAdminRoute && token && !isAdmin) {
+    console.log("[AUTH DEBUG] middleware decision", { pathname, authenticated: true, role: payloadRole, decision: "API_FORBIDDEN_403" });
     return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
   }
 
   if (isProtectedAdminPage && !token) {
+    console.log("[AUTH DEBUG] middleware decision", { pathname, authenticated: false, role: payloadRole, decision: "REDIRECT_LOGIN" });
     return NextResponse.redirect(new URL("/admin/login", request.url));
   }
 
   if (isProtectedAdminPage && token && !isAdmin) {
+    console.log("[AUTH DEBUG] middleware decision", { pathname, authenticated: true, role: payloadRole, decision: "REDIRECT_FORBIDDEN" });
     return NextResponse.redirect(new URL("/admin/login?error=forbidden", request.url));
   }
 
   if (isLoginPage && token && isAdmin) {
+    console.log("[AUTH DEBUG] middleware decision", { pathname, authenticated: true, role: payloadRole, decision: "REDIRECT_ADMIN_HOME" });
     return NextResponse.redirect(new URL("/admin", request.url));
   }
 
+  console.log("[AUTH DEBUG] middleware decision", { pathname, authenticated: Boolean(token), role: payloadRole, decision: "ALLOW" });
   return NextResponse.next();
 }
 
