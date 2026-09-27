@@ -101,3 +101,27 @@ export async function PUT(request: Request) {
     })),
   });
 }
+
+export async function DELETE(request: Request) {
+  const session = await requireAdmin();
+
+  if (!session) {
+    return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
+  }
+
+  const id = new URL(request.url).searchParams.get("id")?.trim();
+  if (!id) {
+    return NextResponse.json({ error: "Réservation introuvable." }, { status: 400 });
+  }
+
+  try {
+    await prisma.reservation.delete({ where: { id } });
+    return NextResponse.json({ success: true, id });
+  } catch (error) {
+    if (typeof error === "object" && error !== null && "code" in error && error.code === "P2025") {
+      return NextResponse.json({ error: "Cette réservation n’existe plus." }, { status: 404 });
+    }
+    console.error("Admin delete reservation error", error);
+    return NextResponse.json({ error: "Impossible de supprimer cette réservation." }, { status: 500 });
+  }
+}

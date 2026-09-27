@@ -1,4 +1,4 @@
-import { APP_NAME, WHATSAPP_NUMBER, formatPrice } from "@/lib/constants";
+import { APP_NAME, APP_URL, WHATSAPP_NUMBER, formatPrice } from "@/lib/constants";
 import type { CartLineItem } from "@/types/product";
 
 export type CustomerOrderInformation = {
@@ -9,6 +9,20 @@ export type CustomerOrderInformation = {
   address: string;
   notes?: string;
 };
+
+function getItemLinks(item: CartLineItem) {
+  const baseUrl = APP_URL.replace(/\/+$/, "");
+  const imageUrl = item.image
+    ? /^https?:\/\//i.test(item.image)
+      ? item.image
+      : `${baseUrl}${item.image.startsWith("/") ? "" : "/"}${item.image}`
+    : "";
+
+  return [
+    imageUrl ? `Photo : ${imageUrl}` : "",
+    `Fiche produit : ${baseUrl}/products/${encodeURIComponent(item.productId)}`,
+  ].filter(Boolean);
+}
 
 export function buildWhatsAppOrderMessage(
   customer: CustomerOrderInformation,
@@ -25,6 +39,7 @@ export function buildWhatsAppOrderMessage(
       `Quantité : ${item.quantity}`,
       `Prix unitaire : ${formatPrice(item.price)}`,
       `Sous-total : ${formatPrice(item.price * item.quantity)}`,
+      ...getItemLinks(item),
     ].join("\n"))
     .join("\n\n────────────────────\n\n");
 
@@ -85,6 +100,7 @@ export function getWhatsAppReservationUrl(
     `Couleur : ${item.color || "À préciser"}`,
     `Quantité : ${item.quantity}`,
     `Prix indicatif : ${formatPrice(item.price)}`,
+    ...getItemLinks(item),
     "",
     "*LIVRAISON SOUHAITÉE*",
     `Ville : ${customer.city || "À préciser"}`,
