@@ -5,18 +5,22 @@ import { formatPrice } from "@/lib/constants";
 import type { Product } from "@/types/product";
 
 export function ProductCard({ product }: { product: Product }) {
-  const productImage = product.images[0] ?? "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=80";
+  const productImage =
+    product.images.find((image) => typeof image === "string" && image.trim().length > 0) ??
+    "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=80";
 
   return (
-    <article className="group overflow-hidden rounded-[30px] border border-[#f3dfe8] bg-white p-3 shadow-[0_10px_30px_rgba(18,18,18,0.04)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(18,18,18,0.08)]">
+    <article className="group overflow-hidden rounded-[30px] border border-[#f3dfe8] bg-white p-3 shadow-[0_12px_32px_rgba(18,18,18,0.05)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_42px_rgba(18,18,18,0.09)]">
       <div className="relative overflow-hidden rounded-[24px] bg-[#fff6fa]">
-        <Link href={`/products/${product.id}`} aria-label={`Voir le produit ${product.name}`}>
+        <Link href={`/products/${product.id}`} aria-label={`Voir le produit ${product.name}`} className="block">
           <Image
             src={productImage}
             alt={product.name}
             width={800}
             height={900}
+            sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
             className="h-72 w-full object-cover transition duration-500 group-hover:scale-105"
+            priority={false}
           />
         </Link>
 
@@ -26,7 +30,7 @@ export function ProductCard({ product }: { product: Product }) {
               Nouveau
             </span>
           ) : (
-            <span className="rounded-full bg-white/80 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#4d474a]">
+            <span className="rounded-full bg-white/80 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#4d474a] backdrop-blur-sm">
               Best seller
             </span>
           )}
