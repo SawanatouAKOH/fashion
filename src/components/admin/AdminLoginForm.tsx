@@ -24,7 +24,7 @@ export function AdminLoginForm() {
     });
 
     if (result?.error) {
-      setError("E-mail ou mot de passe invalide.");
+      setError("La configuration de l’authentification est incomplète.");
       setIsSubmitting(false);
       return;
     }
