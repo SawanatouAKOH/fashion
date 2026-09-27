@@ -68,8 +68,12 @@ export const authConfig = {
   ],
   callbacks: {
     async jwt({ token, user }: { token: any; user?: any }) {
-      if (user) {
+      if (user && user.role) {
         token.role = user.role as "ADMIN" | "USER";
+      }
+
+      if (!token.role) {
+        token.role = "USER";
       }
 
       return token;

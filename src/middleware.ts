@@ -41,26 +41,27 @@ function decodeJwtPayload(token: string) {
 
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
-  const isAdminPage = pathname.startsWith("/admin") || pathname.startsWith("/api/admin");
+  const isProtectedAdminPage = pathname.startsWith("/admin") && pathname !== "/admin/login";
+  const isProtectedApiAdminRoute = pathname.startsWith("/api/admin");
   const isLoginPage = pathname === "/admin/login";
 
   const token = getSessionToken(request);
   const payload = token ? decodeJwtPayload(token) : null;
   const isAdmin = payload?.role === "ADMIN";
 
-  if (pathname.startsWith("/api/admin") && !token) {
+  if (isProtectedApiAdminRoute && !token) {
     return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   }
 
-  if (pathname.startsWith("/api/admin") && token && !isAdmin) {
+  if (isProtectedApiAdminRoute && token && !isAdmin) {
     return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
   }
 
-  if (isAdminPage && !isLoginPage && !token) {
+  if (isProtectedAdminPage && !token) {
     return NextResponse.redirect(new URL("/admin/login", request.url));
   }
 
-  if (isAdminPage && !isLoginPage && token && !isAdmin) {
+  if (isProtectedAdminPage && token && !isAdmin) {
     return NextResponse.redirect(new URL("/admin/login?error=forbidden", request.url));
   }
 

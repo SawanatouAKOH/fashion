@@ -14,7 +14,12 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    if (status === "authenticated" && session?.user?.role !== "ADMIN") {
+    if (status === "authenticated" && !session?.user?.role) {
+      router.replace("/admin/login");
+      return;
+    }
+
+    if (status === "authenticated" && session.user.role !== "ADMIN") {
       router.replace("/admin/login?error=forbidden");
     }
   }, [router, session?.user?.role, status]);
