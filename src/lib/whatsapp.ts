@@ -1,4 +1,5 @@
 import { WHATSAPP_NUMBER } from "@/lib/constants";
+import { formatPrice } from "@/lib/constants";
 import type { CartLineItem } from "@/types/product";
 
 export type CustomerOrderInformation = {
@@ -15,29 +16,39 @@ export function buildWhatsAppOrderMessage(
   items: CartLineItem[],
   total: number,
 ) {
+  const itemCount = items.reduce((count, item) => count + item.quantity, 0);
   const productsBlock = items
-    .map(
-      (item) =>
-        `${item.name}\nTaille : ${item.size}\nCouleur : ${item.color}\nQuantité : ${item.quantity}\nPrix : ${item.price} DH`,
-    )
-    .join("\n\n");
+    .map((item, index) => [
+      `*${String(index + 1).padStart(2, "0")} · ${item.name}*`,
+      `Taille : ${item.size}`,
+      `Couleur : ${item.color}`,
+      `Quantité : ${item.quantity}`,
+      `Prix unitaire : ${formatPrice(item.price)}`,
+      `Sous-total : ${formatPrice(item.price * item.quantity)}`,
+    ].join("\n"))
+    .join("\n\n────────────────────\n\n");
 
   return [
-    "🛍️ NOUVELLE COMMANDE — ADI'S FASHION",
+    "*NOUVELLE COMMANDE | ADI'S FASHION*",
+    "────────────────────────",
     "",
-    `👤 Client :\n${customer.fullName}`,
-    `📞 Téléphone :\n${customer.phone}`,
+    "*CLIENT*",
+    `Nom : ${customer.fullName}`,
+    `Téléphone / WhatsApp : ${customer.phone}`,
     "",
-    "📍 Livraison :",
-    `${customer.city}`,
-    `${customer.district}`,
-    `${customer.address}`,
-    customer.notes ? `ℹ️ Informations complémentaires :\n${customer.notes}` : "",
+    "*ADRESSE DE LIVRAISON*",
+    `Ville : ${customer.city}`,
+    `Quartier : ${customer.district}`,
+    `Adresse : ${customer.address}`,
+    customer.notes?.trim() ? `Instructions : ${customer.notes.trim()}` : "",
     "",
-    "📦 PRODUITS :",
+    `*ARTICLES (${itemCount})*`,
     productsBlock,
     "",
-    `💰 TOTAL : ${total} DH`,
+    "────────────────────────",
+    `*TOTAL DE LA COMMANDE : ${formatPrice(total)}*`,
+    "",
+    "Merci de confirmer la disponibilité et les modalités de livraison.",
   ]
     .filter(Boolean)
     .join("\n");
