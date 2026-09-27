@@ -33,38 +33,32 @@ export function buildWhatsAppOrderMessage(
   const itemCount = items.reduce((count, item) => count + item.quantity, 0);
   const productsBlock = items
     .map((item, index) => [
-      `*${String(index + 1).padStart(2, "0")} · ${item.name}*`,
-      `Taille : ${item.size}`,
-      `Couleur : ${item.color}`,
-      `Quantité : ${item.quantity}`,
-      `Prix unitaire : ${formatPrice(item.price)}`,
-      `Sous-total : ${formatPrice(item.price * item.quantity)}`,
+      `${index + 1}. *${item.name}*`,
+      `Taille : ${item.size} | Couleur : ${item.color}`,
+      `Quantité : ${item.quantity} | Prix unitaire : ${formatPrice(item.price)}`,
+      `Total article : ${formatPrice(item.price * item.quantity)}`,
       ...getItemLinks(item),
     ].join("\n"))
-    .join("\n\n────────────────────\n\n");
+    .join("\n\n");
 
   return [
-    `*NOUVELLE COMMANDE | ${APP_NAME.toUpperCase()}*`,
-    "────────────────────────",
-    orderReference ? `Référence : #${orderReference.slice(0, 8).toUpperCase()}` : "",
+    `Bonjour, je souhaite passer une commande auprès de *${APP_NAME}*.`,
     "",
-    "*CLIENT*",
-    `Nom : ${customer.fullName}`,
-    `Téléphone / WhatsApp : ${customer.phone}`,
+    orderReference ? `*Référence :* #${orderReference.slice(0, 8).toUpperCase()}` : "",
+    `*Client :* ${customer.fullName}`,
+    `*Téléphone :* ${customer.phone}`,
     "",
-    "*ADRESSE DE LIVRAISON*",
-    `Ville : ${customer.city}`,
-    `Quartier : ${customer.district}`,
-    `Adresse : ${customer.address}`,
-    customer.notes?.trim() ? `Instructions : ${customer.notes.trim()}` : "",
+    "*Adresse de livraison*",
+    `${customer.city} - ${customer.district}`,
+    customer.address,
+    customer.notes?.trim() ? `*Précisions :* ${customer.notes.trim()}` : "",
     "",
-    `*ARTICLES (${itemCount})*`,
+    `*Articles commandés (${itemCount})*`,
     productsBlock,
     "",
-    "────────────────────────",
-    `*TOTAL DE LA COMMANDE : ${formatPrice(total)}*`,
+    `*Total de la commande : ${formatPrice(total)}*`,
     "",
-    "Merci de confirmer la disponibilité et les modalités de livraison.",
+    "Merci de me confirmer la disponibilité des articles et le délai de livraison.",
   ]
     .filter(Boolean)
     .join("\n");
