@@ -252,13 +252,26 @@ export function ProductManager() {
       body: formData,
     });
 
-    const result = await response.json();
+    const rawText = await response.text();
+    let result: { url?: string; error?: string } = {};
+
+    if (rawText) {
+      try {
+        result = JSON.parse(rawText) as { url?: string; error?: string };
+      } catch {
+        throw new Error(`Réponse invalide de l’API upload: ${rawText.slice(0, 200)}`);
+      }
+    }
 
     if (!response.ok) {
       throw new Error(result.error ?? "Impossible de téléverser l’image.");
     }
 
-    return String(result.url || "");
+    if (!result.url) {
+      throw new Error("L’API upload n’a renvoyé aucune URL d’image valide.");
+    }
+
+    return String(result.url);
   }
 
   async function handleDelete(id: string) {
