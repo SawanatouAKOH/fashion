@@ -19,8 +19,7 @@ function getItemLinks(item: CartLineItem) {
     : "";
 
   return [
-    imageUrl ? `Photo : ${imageUrl}` : "",
-    `Fiche produit : ${baseUrl}/products/${encodeURIComponent(item.productId)}`,
+    imageUrl,
   ].filter(Boolean);
 }
 
@@ -32,33 +31,23 @@ export function buildWhatsAppOrderMessage(
 ) {
   const itemCount = items.reduce((count, item) => count + item.quantity, 0);
   const productsBlock = items
-    .map((item, index) => [
-      `${index + 1}. *${item.name}*`,
-      `Taille : ${item.size} | Couleur : ${item.color}`,
-      `Quantité : ${item.quantity} | Prix unitaire : ${formatPrice(item.price)}`,
-      `Total article : ${formatPrice(item.price * item.quantity)}`,
+    .map((item) => [
+      `• *${item.name}* — ${item.size}, ${item.color} × ${item.quantity} | ${formatPrice(item.price * item.quantity)}`,
       ...getItemLinks(item),
     ].join("\n"))
-    .join("\n\n");
+    .join("\n");
 
   return [
-    `Bonjour, je souhaite passer une commande auprès de *${APP_NAME}*.`,
-    "",
-    orderReference ? `*Référence :* #${orderReference.slice(0, 8).toUpperCase()}` : "",
-    `*Client :* ${customer.fullName}`,
-    `*Téléphone :* ${customer.phone}`,
-    "",
-    "*Adresse de livraison*",
-    `${customer.city} - ${customer.district}`,
+    `Bonjour, voici ma commande *${APP_NAME}*.`,
+    orderReference ? `Réf. #${orderReference.slice(0, 8).toUpperCase()}` : "",
+    `Client : ${customer.fullName} | ${customer.phone}`,
+    `Livraison : ${customer.city}, ${customer.district}`,
     customer.address,
-    customer.notes?.trim() ? `*Précisions :* ${customer.notes.trim()}` : "",
-    "",
-    `*Articles commandés (${itemCount})*`,
+    customer.notes?.trim() ? `Note : ${customer.notes.trim()}` : "",
+    `Articles (${itemCount}) :`,
     productsBlock,
-    "",
-    `*Total de la commande : ${formatPrice(total)}*`,
-    "",
-    "Merci de me confirmer la disponibilité des articles et le délai de livraison.",
+    `Total : *${formatPrice(total)}*`,
+    "Merci de confirmer la disponibilité et la livraison.",
   ]
     .filter(Boolean)
     .join("\n");

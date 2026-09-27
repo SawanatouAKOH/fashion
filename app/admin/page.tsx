@@ -1,14 +1,18 @@
 import Link from "next/link";
+import { connection } from "next/server";
 
 import { prisma } from "@/lib/prisma";
 
 export default async function AdminPage() {
-  const [productsCount, availableCount, comingSoonCount, ordersCount, pendingOrdersCount, reservationsCount, pendingReservationsCount, latestProducts, latestOrders, latestReservations] = await Promise.all([
+  await connection();
+
+  const [productsCount, availableCount, comingSoonCount, ordersCount, pendingOrdersCount, confirmedOrdersCount, reservationsCount, pendingReservationsCount, latestProducts, latestOrders, latestReservations] = await Promise.all([
     prisma.product.count(),
     prisma.product.count({ where: { status: "AVAILABLE" } }),
     prisma.product.count({ where: { status: "COMING_SOON" } }),
     prisma.order.count(),
     prisma.order.count({ where: { status: "PENDING" } }),
+    prisma.order.count({ where: { status: "CONFIRMED" } }),
     prisma.reservation.count(),
     prisma.reservation.count({ where: { status: "PENDING" } }),
     prisma.product.findMany({
@@ -32,6 +36,7 @@ export default async function AdminPage() {
     { label: "Bientôt dispo.", value: comingSoonCount, hint: "coming soon" },
     { label: "Commandes", value: ordersCount, hint: "total" },
     { label: "En attente", value: pendingOrdersCount, hint: "commandes" },
+    { label: "Confirmées", value: confirmedOrdersCount, hint: "commandes" },
     { label: "Réservations", value: reservationsCount, hint: "total" },
     { label: "Réservations en attente", value: pendingReservationsCount, hint: "à traiter" },
   ];
@@ -104,7 +109,7 @@ export default async function AdminPage() {
         <div className="rounded-[28px] border border-[#f2dfe7] bg-white p-5 shadow-[0_12px_28px_rgba(18,18,18,0.03)]">
           <div className="mb-4 flex items-center justify-between gap-3">
             <h2 className="text-xl font-semibold text-[#191919]">Dernières commandes</h2>
-            <Link href="/admin/products" className="text-sm font-semibold text-[#d95d8d]">Voir</Link>
+            <Link href="/admin/orders" className="text-sm font-semibold text-[#d95d8d]">Voir tout</Link>
           </div>
 
           <div className="space-y-3">
@@ -129,7 +134,7 @@ export default async function AdminPage() {
       <section className="rounded-[28px] border border-[#f2dfe7] bg-white p-5 shadow-[0_12px_28px_rgba(18,18,18,0.03)]">
         <div className="mb-4 flex items-center justify-between gap-3">
           <h2 className="text-xl font-semibold text-[#191919]">Dernières réservations</h2>
-          <Link href="/admin/categories" className="text-sm font-semibold text-[#d95d8d]">Voir</Link>
+          <Link href="/admin/reservations" className="text-sm font-semibold text-[#d95d8d]">Voir tout</Link>
         </div>
 
         <div className="space-y-3">
