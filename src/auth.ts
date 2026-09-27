@@ -18,8 +18,14 @@ declare module "next-auth" {
   }
 }
 
+const authSecret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
+
+if (!authSecret) {
+  throw new Error("Missing Auth.js secret: set AUTH_SECRET and NEXTAUTH_SECRET to the same stable value in production.");
+}
+
 export const authConfig = {
-  secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
+  secret: authSecret,
   trustHost: true,
   adapter: PrismaAdapter(prisma),
   session: {
