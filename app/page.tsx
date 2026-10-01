@@ -15,7 +15,7 @@ export default async function HomePage() {
   ]);
 
   const highlights = [
-    "Livraison partout au Maroc en 48 h",
+    "Livraison en 48 h partout au Maroc",
     "Styles premium et élégants",
     "Commande facile via WhatsApp",
   ];

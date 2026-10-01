@@ -30,7 +30,7 @@ export function ProductCard({ product }: { product: Product }) {
             </span>
           ) : (
             <span className="rounded-full bg-white/90 px-2 py-1 text-[9px] font-semibold uppercase text-[#4d474a] backdrop-blur-sm sm:px-2.5 sm:text-[10px]">
-              Best seller
+              Populaire
             </span>
           )}
 
@@ -66,7 +66,6 @@ export function ProductCard({ product }: { product: Product }) {
               />
             ))}
           </div>
-          <span className="text-[10px] font-medium text-[#6a6368] sm:text-xs">{product.stock} en stock</span>
         </div>
 
         <Link

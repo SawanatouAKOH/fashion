@@ -30,8 +30,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full bg-white text-[#171719]">
         <AppSessionProvider>
           <CartProvider>
-            <PublicSiteChrome />
-            <main className="flex-1">{children}</main>
+            <PublicSiteChrome>{children}</PublicSiteChrome>
           </CartProvider>
         </AppSessionProvider>
       </body>

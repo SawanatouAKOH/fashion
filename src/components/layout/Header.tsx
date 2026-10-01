@@ -21,7 +21,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-[#f1dce5] bg-white/95 backdrop-blur-md">
       <div className="bg-[#d95d8d] px-4 py-2 text-center text-xs font-semibold text-white">
-        Livraison partout au Maroc en 48 h · Découvrez les nouvelles pièces
+        Livraison en 48 h partout au Maroc · Découvrez les nouvelles pièces
       </div>
       <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
         <button
