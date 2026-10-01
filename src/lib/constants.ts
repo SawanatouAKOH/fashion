@@ -2,7 +2,7 @@ export const WHATSAPP_NUMBER = "212693267744";
 export const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
 export const APP_NAME = "Adi's Fashion";
-export const APP_TAGLINE = "L'élégance et la qualité";
+export const APP_TAGLINE = "Le tissu africain, autrement.";
 
 export const CATEGORY_SLUGS: Record<string, string> = {
   Robes: "robes",

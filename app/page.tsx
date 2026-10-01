@@ -15,21 +15,18 @@ export default async function HomePage() {
   ]);
 
   const highlights = [
-    "Livraison rapide au Maroc",
+    "Livraison partout au Maroc en 48 h",
     "Styles premium et élégants",
     "Commande facile via WhatsApp",
   ];
 
-  const heroImages = [
-    {
-      src: newProducts[0]?.images[0] ?? featuredProducts[0]?.images[0] ?? "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=900&q=80",
-      alt: newProducts[0]?.name ?? featuredProducts[0]?.name ?? "Modèle en tenue élégante",
-    },
-    {
-      src: newProducts[1]?.images[0] ?? featuredProducts[1]?.images[0] ?? "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=900&q=80",
-      alt: newProducts[1]?.name ?? featuredProducts[1]?.name ?? "Portrait de mode premium",
-    },
-  ];
+  const heroProducts = [...featuredProducts, ...newProducts]
+    .filter((product, index, allProducts) =>
+      product.featured &&
+      product.images.some((image) => typeof image === "string" && image.trim()) &&
+      allProducts.findIndex((candidate) => candidate.id === product.id) === index,
+    )
+    .slice(0, 2);
 
   return (
     <>
@@ -45,10 +42,10 @@ export default async function HomePage() {
               <div className="space-y-4">
                 <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#c06589]">{APP_NAME}</p>
                 <h1 className="text-3xl font-semibold leading-tight text-[#171719] sm:text-4xl lg:text-5xl">
-                  L&apos;élégance et la qualité
+                  Le tissu africain, autrement. Moderne. Élégant. Audacieux.
                 </h1>
                 <p className="max-w-xl text-sm leading-6 text-[#555459] sm:text-base sm:leading-7">
-                  Une sélection de pièces raffinées pour sublimer chaque moment : élégance, confort et assurance dans chaque détail.
+                  Des créations modernes qui célèbrent la richesse de nos tissus et de notre culture.
                 </p>
               </div>
 
@@ -73,17 +70,27 @@ export default async function HomePage() {
             </div>
 
             <div className="grid grid-cols-2 gap-2 sm:gap-3">
-              {heroImages.map((image, index) => (
+              {heroProducts.map((product, index) => {
+                const image = product.images.find((candidate) => typeof candidate === "string" && candidate.trim());
+                if (!image) return null;
+
+                return (
                 <div
-                  key={image.alt}
+                  key={product.id}
                   className={`relative aspect-[4/5] overflow-hidden rounded-[20px] border border-[#f2dfe8] bg-[#fff4f8] shadow-[0_12px_28px_rgba(17,17,17,0.05)] sm:rounded-[25px] ${index === 1 ? "mt-5 sm:mt-8" : ""}`}
                 >
-                  <Image src={image.src} alt={image.alt} fill sizes="(max-width: 640px) 45vw, 30vw" priority={index === 0} className="object-cover" />
+                  <Image src={image} alt={product.name} fill sizes="(max-width: 640px) 45vw, 30vw" priority={index === 0} className="object-cover" />
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-3 pb-3 pt-10 sm:px-4 sm:pb-4">
-                    <p className="line-clamp-1 text-xs font-semibold text-white sm:text-sm">{image.alt}</p>
+                    <p className="line-clamp-1 text-xs font-semibold text-white sm:text-sm">{product.name}</p>
                   </div>
                 </div>
-              ))}
+                );
+              })}
+              {heroProducts.length === 0 ? (
+                <div className="col-span-2 flex aspect-[4/3] items-center justify-center rounded-[20px] border border-dashed border-[#e8cbd8] bg-[#fff8fb] p-5 text-center text-sm text-[#76636c] sm:rounded-[25px]">
+                  Les pièces mises en avant apparaîtront ici avec leurs photos.
+                </div>
+              ) : null}
             </div>
           </div>
         </div>

@@ -190,7 +190,7 @@ export function ProductDetailClient({ product }: { product: Product }) {
 
           <div className="flex items-center gap-2 rounded-2xl bg-[#fff7fa] p-4 text-sm text-[#4f4a4c]">
             <ShoppingBag className="h-5 w-5 text-[#d95d8d]" />
-            {isComingSoon ? "Ce produit est bientôt disponible. Réservez-le dès maintenant." : "Livraison rapide et commande facile via WhatsApp."}
+            {isComingSoon ? "Ce produit est bientôt disponible. Réservez-le dès maintenant." : "Livraison partout au Maroc en 48 h. Commande simple via WhatsApp."}
           </div>
         </div>
       </div>

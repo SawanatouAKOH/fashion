@@ -1,7 +1,7 @@
 "use client";
 
 import { Pencil, Plus, ShieldCheck, Trash2 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type CategoryOption = {
   id: string;
@@ -72,6 +72,7 @@ function normalizeSlug(value: string) {
 }
 
 export function ProductManager() {
+  const productFormRef = useRef<HTMLFormElement>(null);
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [categories, setCategories] = useState<CategoryOption[]>([]);
   const [draft, setDraft] = useState<ProductDraft>(EMPTY_DRAFT());
@@ -171,6 +172,9 @@ export function ProductManager() {
       featured: product.featured,
       isNew: product.isNew,
     });
+    setError("");
+    setSuccess("");
+    productFormRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -230,24 +234,27 @@ export function ProductManager() {
 
     setIsSaving(true);
 
-    const response = await fetch("/api/admin/products", {
-      method: draft.id ? "PUT" : "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+    try {
+      const response = await fetch("/api/admin/products", {
+        method: draft.id ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const result = await response.json();
 
-    const result = await response.json();
+      if (!response.ok) {
+        setError(result.error ?? "Une erreur est survenue.");
+        return;
+      }
 
-    if (!response.ok) {
-      setError(result.error ?? "Une erreur est survenue.");
+      setSuccess(draft.id ? "Produit modifié avec succès." : "Produit ajouté avec succès.");
+      resetDraft();
+      await loadProducts();
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : "Impossible d’enregistrer le produit.");
+    } finally {
       setIsSaving(false);
-      return;
     }
-
-    setSuccess(draft.id ? "Produit modifié avec succès." : "Produit ajouté avec succès.");
-    resetDraft();
-    await loadProducts();
-    setIsSaving(false);
   }
 
   async function uploadImageFile(file: File) {
@@ -345,7 +352,7 @@ export function ProductManager() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5 rounded-[28px] border border-[#f1dfe7] bg-white p-5 shadow-[0_12px_28px_rgba(18,18,18,0.03)]">
+        <form ref={productFormRef} onSubmit={handleSubmit} className="scroll-mt-24 space-y-5 rounded-[28px] border border-[#f1dfe7] bg-white p-5 shadow-[0_12px_28px_rgba(18,18,18,0.03)]">
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-xl font-semibold text-[#191919]">{draft.id ? "Modifier le produit" : "Nouveau produit"}</h2>
             {draft.id ? (

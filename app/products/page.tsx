@@ -40,7 +40,6 @@ export default async function ProductsPage({
           {visibleProducts.length} articles
         </span>
         <span className="rounded-full border border-[#f2dfe7] bg-white px-3 py-1.5 text-xs font-medium text-[#4d474a]">Nouveautés</span>
-        <span className="rounded-full border border-[#f2dfe7] bg-white px-3 py-1.5 text-xs font-medium text-[#4d474a]">Édition premium</span>
       </div>
 
       <ProductGrid products={visibleProducts} />

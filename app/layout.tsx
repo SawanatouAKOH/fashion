@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
-import { Footer } from "@/components/layout/Footer";
-import { Header } from "@/components/layout/Header";
+import { PublicSiteChrome } from "@/components/layout/PublicSiteChrome";
 import { CartProvider } from "@/components/providers/CartProvider";
 import { AppSessionProvider } from "@/components/providers/SessionProvider";
 import "./globals.css";
@@ -18,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Adi's Fashion | L'élégance et la qualité",
+  title: "Adi's Fashion | Le tissu africain, autrement",
   description: "Boutique de mode moderne et élégante dédiée à la femme contemporaine.",
 };
 
@@ -31,9 +30,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full bg-white text-[#171719]">
         <AppSessionProvider>
           <CartProvider>
-            <Header />
+            <PublicSiteChrome />
             <main className="flex-1">{children}</main>
-            <Footer />
           </CartProvider>
         </AppSessionProvider>
       </body>

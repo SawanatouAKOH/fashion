@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
-import { BarChart3, FolderTree, LogOut, Menu, Package, ShoppingBag, Ticket, UserCircle2, X } from "lucide-react";
+import { ArrowUpRight, BarChart3, FolderTree, LogOut, Menu, Package, ShoppingBag, Ticket, UserCircle2, X } from "lucide-react";
 import { useState } from "react";
 
 const navItems = [
@@ -30,9 +30,14 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#c06589]">Adi&apos;s Fashion</p>
             <h1 className="text-base font-semibold text-[#1d1a1b]">Back-office</h1>
           </div>
-          <button type="button" onClick={() => setMobileOpen((current) => !current)} className="rounded-full border border-[#efd7e5] bg-[#fffafc] p-2 text-[#2d2a2c]">
-            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
+          <div className="flex items-center gap-2">
+            <Link href="/" target="_blank" className="inline-flex items-center gap-1 rounded-full border border-[#efd7e5] bg-white px-3 py-2 text-xs font-medium text-[#4a4547]">
+              Voir le site <ArrowUpRight className="h-3.5 w-3.5" />
+            </Link>
+            <button type="button" onClick={() => setMobileOpen((current) => !current)} className="rounded-full border border-[#efd7e5] bg-[#fffafc] p-2 text-[#2d2a2c]">
+              {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+          </div>
         </div>
 
         {mobileOpen ? (
@@ -84,6 +89,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           <div className="mb-6 px-2 pt-2">
             <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#c06589]">Adi&apos;s Fashion</p>
             <h1 className="mt-2 text-xl font-semibold text-[#191919]">Back-office</h1>
+            <Link href="/" target="_blank" className="mt-4 inline-flex items-center gap-2 rounded-full border border-[#efdfe5] px-3 py-2 text-sm font-medium text-[#4a4547] transition hover:border-[#d95d8d] hover:text-[#c14f78]">
+              Voir le site <ArrowUpRight className="h-4 w-4" />
+            </Link>
           </div>
 
           <nav className="space-y-2">
