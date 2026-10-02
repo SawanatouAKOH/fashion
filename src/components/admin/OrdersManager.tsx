@@ -3,6 +3,8 @@
 import { Eye, PackageCheck, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { formatOrderReference } from "@/lib/order-reference";
+
 type OrderItem = {
   id: string;
   productName: string;
@@ -93,7 +95,7 @@ export function OrdersManager() {
   }
 
   async function deleteOrder(order: Order) {
-    if (!window.confirm(`Supprimer définitivement la commande #${order.id.slice(0, 8)} de ${order.customerName} ?`)) {
+    if (!window.confirm(`Supprimer définitivement la commande ${formatOrderReference(order.id)} de ${order.customerName} ?`)) {
       return;
     }
 
@@ -191,7 +193,7 @@ export function OrdersManager() {
                 ) : (
                   visibleOrders.map((order) => (
                     <tr key={order.id} className="border-t border-[#f5e4ed] align-top">
-                      <td className="px-4 py-3 font-medium text-[#1f1d1e]">#{order.id.slice(0, 8)}</td>
+                      <td className="px-4 py-3 font-medium text-[#1f1d1e]">{formatOrderReference(order.id)}</td>
                       <td className="px-4 py-3">{order.customerName}</td>
                       <td className="px-4 py-3">{order.phone}</td>
                       <td className="px-4 py-3">{order.city ?? "-"}</td>
@@ -210,7 +212,7 @@ export function OrdersManager() {
                           <Eye className="h-3.5 w-3.5" />
                           Voir
                         </button>
-                        <button type="button" onClick={() => void deleteOrder(order)} disabled={deletingId === order.id} aria-label={`Supprimer la commande ${order.id.slice(0, 8)}`} title="Supprimer cette commande" className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#f0d8de] text-[#a33c57] transition hover:bg-[#fff1f3] disabled:opacity-50">
+                        <button type="button" onClick={() => void deleteOrder(order)} disabled={deletingId === order.id} aria-label={`Supprimer la commande ${formatOrderReference(order.id)}`} title="Supprimer cette commande" className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#f0d8de] text-[#a33c57] transition hover:bg-[#fff1f3] disabled:opacity-50">
                           <Trash2 className="h-4 w-4" />
                         </button>
                         </div>
@@ -235,7 +237,7 @@ export function OrdersManager() {
             <div className="space-y-4 text-sm text-[#2d2a2c]">
               <div className="rounded-2xl bg-[#fffafc] p-3">
                 <p className="text-xs uppercase tracking-[0.2em] text-[#a36d85]">Commande</p>
-                <p className="mt-2 text-lg font-semibold">#{selectedOrder.id.slice(0, 8)}</p>
+                <p className="mt-2 text-lg font-semibold">{formatOrderReference(selectedOrder.id)}</p>
                 <div className="mt-2 flex items-center justify-between text-[#5d5557]">
                   <span>Status</span>
                   <span className="rounded-full bg-[#f7edf2] px-2 py-1 text-[10px] font-semibold tracking-[0.08em] text-[#c06589]">{statusLabels[selectedOrder.status]}</span>

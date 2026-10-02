@@ -22,7 +22,7 @@ type ProductItem = {
   category?: { id: string; name: string };
   images: string[];
   sizes: string[];
-  colors: Array<{ name: string; hex: string }>;
+  colors: Array<{ name: string; hex: string; images?: string[] }>;
   featured: boolean;
   isNew: boolean;
   status: ProductStatus;
@@ -41,8 +41,9 @@ type ProductDraft = {
   status: ProductStatus;
   estimatedArrival: string;
   sizes: string[];
-  colors: Array<{ name: string; hex: string }>;
+  colors: Array<{ name: string; hex: string; images?: string[] }>;
   images: string[];
+  imageColors: string[];
   featured: boolean;
   isNew: boolean;
 };
@@ -59,6 +60,7 @@ const EMPTY_DRAFT = (): ProductDraft => ({
   sizes: ["S", "M", "L"],
   colors: [{ name: "Noir", hex: "#111111" }],
   images: ["https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=80"],
+  imageColors: [""],
   featured: false,
   isNew: true,
 });
@@ -71,12 +73,49 @@ function normalizeSlug(value: string) {
     .replace(/^-+|-+$/g, "");
 }
 
+function getFrenchColorName(hex: string) {
+  const match = /^#?([0-9a-f]{6})$/i.exec(hex);
+  if (!match) return "Couleur personnalisée";
+
+  const value = match[1];
+  const red = Number.parseInt(value.slice(0, 2), 16);
+  const green = Number.parseInt(value.slice(2, 4), 16);
+  const blue = Number.parseInt(value.slice(4, 6), 16);
+  const maximum = Math.max(red, green, blue);
+  const minimum = Math.min(red, green, blue);
+  const lightness = (maximum + minimum) / 510;
+
+  if (maximum < 45) return "Noir";
+  if (minimum > 235) return "Blanc";
+  if (maximum - minimum < 24) return lightness < 0.35 ? "Gris foncé" : lightness > 0.72 ? "Gris clair" : "Gris";
+
+  const delta = maximum - minimum;
+  let hue = 0;
+  if (maximum === red) hue = ((green - blue) / delta) % 6;
+  else if (maximum === green) hue = (blue - red) / delta + 2;
+  else hue = (red - green) / delta + 4;
+  hue = (hue * 60 + 360) % 360;
+
+  const baseName = hue < 15 || hue >= 345 ? "Rouge"
+    : hue < 45 ? "Orange"
+      : hue < 70 ? "Jaune"
+        : hue < 165 ? "Vert"
+          : hue < 195 ? "Turquoise"
+            : hue < 255 ? "Bleu"
+              : hue < 285 ? "Violet"
+                : hue < 330 ? "Rose" : "Rouge";
+
+  if (lightness < 0.28) return `${baseName} foncé`;
+  if (lightness > 0.78) return `${baseName} clair`;
+  return baseName;
+}
+
 export function ProductManager() {
   const productFormRef = useRef<HTMLFormElement>(null);
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [categories, setCategories] = useState<CategoryOption[]>([]);
   const [draft, setDraft] = useState<ProductDraft>(EMPTY_DRAFT());
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -122,20 +161,6 @@ export function ProductManager() {
       });
   }, [categoryFilter, products, search, sortBy, statusFilter]);
 
-  async function loadCategories() {
-    const response = await fetch("/api/admin/categories");
-    if (!response.ok) {
-      return;
-    }
-
-    const data = (await response.json()) as CategoryOption[];
-    setCategories(data);
-
-    if (!draft.categoryId && data[0]) {
-      setDraft((current) => ({ ...current, categoryId: data[0].id }));
-    }
-  }
-
   async function loadProducts() {
     setIsLoading(true);
     const response = await fetch("/api/admin/products");
@@ -145,7 +170,30 @@ export function ProductManager() {
   }
 
   useEffect(() => {
-    void Promise.all([loadCategories(), loadProducts()]);
+    async function loadInitialData() {
+      try {
+        const [categoriesResponse, productsResponse] = await Promise.all([
+          fetch("/api/admin/categories"),
+          fetch("/api/admin/products"),
+        ]);
+
+        if (categoriesResponse.ok) {
+          const categoryData = (await categoriesResponse.json()) as CategoryOption[];
+          setCategories(categoryData);
+          if (categoryData[0]) {
+            setDraft((current) => current.categoryId ? current : { ...current, categoryId: categoryData[0].id });
+          }
+        }
+
+        if (productsResponse.ok) {
+          setProducts((await productsResponse.json()) as ProductItem[]);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    void loadInitialData();
   }, []);
 
   function resetDraft() {
@@ -169,6 +217,7 @@ export function ProductManager() {
       sizes: product.sizes.length > 0 ? [...product.sizes] : ["M"],
       colors: product.colors.length > 0 ? [...product.colors] : [{ name: "Noir", hex: "#111111" }],
       images: product.images.length > 0 ? [...product.images] : [""],
+      imageColors: product.images.map((image) => product.colors.find((color) => color.images?.includes(image))?.hex ?? ""),
       featured: product.featured,
       isNew: product.isNew,
     });
@@ -226,7 +275,10 @@ export function ProductManager() {
       status: draft.status,
       estimatedArrival: normalizedEstimatedArrival || null,
       sizes: filteredSizes,
-      colors: filteredColors,
+      colors: filteredColors.map((color) => ({
+        ...color,
+        images: draft.images.filter((image, imageIndex) => Boolean(image) && draft.imageColors[imageIndex] === color.hex),
+      })),
       images: filteredImages,
       featured: draft.featured,
       isNew: draft.isNew,
@@ -441,13 +493,42 @@ export function ProductManager() {
           <div className="space-y-3">
             <label className="block text-sm font-medium text-[#3a3739]">Couleurs</label>
             {draft.colors.map((color, index) => (
-              <div key={`color-${index}`} className="grid gap-2 sm:grid-cols-[1fr_120px_120px]">
-                <input value={color.name} onChange={(event) => setDraft((current) => ({ ...current, colors: current.colors.map((value, innerIndex) => innerIndex === index ? { ...value, name: event.target.value } : value) }))} className="rounded-2xl border border-[#ecdfe6] bg-[#fffafc] px-4 py-3 outline-none transition focus:border-[#d95d8d]" placeholder="Rouge" />
-                <input type="color" value={color.hex || "#111111"} onChange={(event) => setDraft((current) => ({ ...current, colors: current.colors.map((value, innerIndex) => innerIndex === index ? { ...value, hex: event.target.value } : value) }))} className="h-[50px] w-full rounded-2xl border border-[#ecdfe6] bg-[#fffafc] px-1 py-2" />
-                <button type="button" onClick={() => setDraft((current) => ({ ...current, colors: current.colors.filter((_, innerIndex) => innerIndex !== index) }))} className="rounded-full border border-[#f1d9e5] bg-[#fff7fa] px-3 py-2 text-sm font-medium text-[#b14d6c]">Supprimer</button>
+              <div key={`color-${index}`} className="flex items-center gap-3 rounded-2xl border border-[#ecdfe6] bg-[#fffafc] p-3">
+                <input
+                  type="color"
+                  value={color.hex || "#111111"}
+                  aria-label={`Choisir la couleur ${index + 1}`}
+                  onChange={(event) => {
+                    const nextHex = event.target.value;
+                    const nextName = getFrenchColorName(nextHex);
+                    setDraft((current) => ({
+                      ...current,
+                      colors: current.colors.map((value, innerIndex) => innerIndex === index
+                        ? { ...value, name: nextName, hex: nextHex }
+                        : value),
+                      imageColors: current.imageColors.map((hex) => hex === color.hex ? nextHex : hex),
+                    }));
+                  }}
+                  className="h-11 w-14 shrink-0 cursor-pointer rounded-xl border border-[#ecdfe6] bg-white p-1"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-[#2d292b]">{color.name || getFrenchColorName(color.hex)}</p>
+                  <p className="text-xs uppercase text-[#81767b]">{color.hex}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setDraft((current) => ({
+                    ...current,
+                    colors: current.colors.filter((_, innerIndex) => innerIndex !== index),
+                    imageColors: current.imageColors.map((hex) => hex === color.hex ? "" : hex),
+                  }))}
+                  className="rounded-full border border-[#f1d9e5] bg-[#fff7fa] px-3 py-2 text-sm font-medium text-[#b14d6c]"
+                >
+                  Supprimer
+                </button>
               </div>
             ))}
-            <button type="button" onClick={() => setDraft((current) => ({ ...current, colors: [...current.colors, { name: "", hex: "#111111" }] }))} className="inline-flex items-center gap-2 rounded-full border border-[#efd7e5] px-3 py-2 text-sm font-medium text-[#4d4547]">
+            <button type="button" onClick={() => setDraft((current) => ({ ...current, colors: [...current.colors, { name: getFrenchColorName("#111111"), hex: "#111111" }] }))} className="inline-flex items-center gap-2 rounded-full border border-[#efd7e5] px-3 py-2 text-sm font-medium text-[#4d4547]">
               <Plus className="h-4 w-4" />
               Ajouter une couleur
             </button>
@@ -456,9 +537,23 @@ export function ProductManager() {
           <div className="space-y-3">
             <label className="block text-sm font-medium text-[#3a3739]">Images</label>
             {draft.images.map((image, index) => (
-              <div key={`image-${index}`} className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                <input value={image} onChange={(event) => setDraft((current) => ({ ...current, images: current.images.map((value, innerIndex) => (innerIndex === index ? event.target.value : value)) }))} className="w-full rounded-2xl border border-[#ecdfe6] bg-[#fffafc] px-4 py-3 outline-none transition focus:border-[#d95d8d]" placeholder="https://..." />
-                <div className="flex gap-2">
+              <div key={`image-${index}`} className="space-y-2 rounded-2xl border border-[#f1e1e8] bg-[#fffafc] p-3">
+                <input value={image} onChange={(event) => setDraft((current) => ({ ...current, images: current.images.map((value, innerIndex) => (innerIndex === index ? event.target.value : value)) }))} className="w-full rounded-xl border border-[#ecdfe6] bg-white px-4 py-3 outline-none transition focus:border-[#d95d8d]" placeholder="https://..." />
+                <div className="flex flex-wrap items-center gap-2">
+                  <select
+                    value={draft.imageColors[index] ?? ""}
+                    onChange={(event) => setDraft((current) => ({
+                      ...current,
+                      imageColors: current.imageColors.map((hex, innerIndex) => innerIndex === index ? event.target.value : hex),
+                    }))}
+                    aria-label={`Couleur de l’image ${index + 1}`}
+                    className="min-w-40 flex-1 rounded-full border border-[#ecdfe6] bg-white px-3 py-2 text-sm outline-none focus:border-[#d95d8d]"
+                  >
+                    <option value="">Photo non associée à une couleur</option>
+                    {draft.colors.map((color) => (
+                      <option key={color.hex} value={color.hex}>{color.name}</option>
+                    ))}
+                  </select>
                   <label className="inline-flex cursor-pointer items-center justify-center rounded-full border border-[#efd7e5] bg-[#fffafc] px-3 py-2 text-sm font-medium text-[#4d4547]">
                     <input
                       type="file"
@@ -486,11 +581,15 @@ export function ProductManager() {
                     />
                     Upload
                   </label>
-                  <button type="button" onClick={() => setDraft((current) => ({ ...current, images: current.images.filter((_, innerIndex) => innerIndex !== index) }))} className="rounded-full border border-[#f1d9e5] bg-[#fff7fa] px-3 py-2 text-sm font-medium text-[#b14d6c]">Supprimer</button>
+                  <button type="button" onClick={() => setDraft((current) => ({
+                    ...current,
+                    images: current.images.filter((_, innerIndex) => innerIndex !== index),
+                    imageColors: current.imageColors.filter((_, innerIndex) => innerIndex !== index),
+                  }))} className="rounded-full border border-[#f1d9e5] bg-[#fff7fa] px-3 py-2 text-sm font-medium text-[#b14d6c]">Supprimer</button>
                 </div>
               </div>
             ))}
-            <button type="button" onClick={() => setDraft((current) => ({ ...current, images: [...current.images, ""] }))} className="inline-flex items-center gap-2 rounded-full border border-[#efd7e5] px-3 py-2 text-sm font-medium text-[#4d4547]">
+            <button type="button" onClick={() => setDraft((current) => ({ ...current, images: [...current.images, ""], imageColors: [...current.imageColors, ""] }))} className="inline-flex items-center gap-2 rounded-full border border-[#efd7e5] px-3 py-2 text-sm font-medium text-[#4d4547]">
               <Plus className="h-4 w-4" />
               Ajouter une image
             </button>

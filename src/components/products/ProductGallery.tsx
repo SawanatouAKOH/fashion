@@ -15,7 +15,7 @@ export function ProductGallery({ images, name }: { images: string[]; name: strin
           width={900}
           height={1100}
           priority
-          className="h-[420px] w-full rounded-[22px] object-cover sm:h-[540px]"
+          className="h-[420px] w-full rounded-[22px] object-contain sm:h-[540px]"
         />
       </div>
 
@@ -33,7 +33,7 @@ export function ProductGallery({ images, name }: { images: string[]; name: strin
               alt={`${name} vue ${index + 1}`}
               width={300}
               height={360}
-              className="h-24 w-full object-cover sm:h-28"
+              className="h-24 w-full bg-[#fff8fb] object-contain sm:h-28"
             />
           </button>
         ))}

@@ -27,6 +27,8 @@ export function AddToCartButton({
       return;
     }
 
+    const selectedColorImage = product.colors.find((color) => color.name === selectedColor)?.images?.[0];
+
     addItem({
       productId: product.id,
       name: product.name,
@@ -34,7 +36,7 @@ export function AddToCartButton({
       color: selectedColor,
       price: product.price,
       quantity,
-      image: product.images[0],
+      image: selectedColorImage ?? product.images[0],
     });
 
     onAdded?.();

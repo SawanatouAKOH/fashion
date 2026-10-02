@@ -1,6 +1,7 @@
 export type ProductColor = {
   name: string;
   hex: string;
+  images?: string[];
 };
 
 export type ProductStatus = "AVAILABLE" | "COMING_SOON";

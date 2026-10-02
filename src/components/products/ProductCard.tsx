@@ -10,7 +10,7 @@ export function ProductCard({ product }: { product: Product }) {
     "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=80";
 
   return (
-    <article className="group min-w-0 overflow-hidden rounded-2xl border border-[#f1e3e9] bg-white p-1.5 shadow-[0_5px_18px_rgba(40,20,30,0.04)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(40,20,30,0.09)] sm:rounded-[22px] sm:p-2">
+    <article className="group flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-[#f1e3e9] bg-white p-1.5 shadow-[0_5px_18px_rgba(40,20,30,0.04)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(40,20,30,0.09)] sm:rounded-[22px] sm:p-2">
       <div className="relative aspect-[4/5] overflow-hidden rounded-xl bg-[#fff6fa] sm:rounded-[17px]">
         <Link href={`/products/${product.id}`} aria-label={`Voir le produit ${product.name}`} className="block">
           <Image
@@ -18,7 +18,7 @@ export function ProductCard({ product }: { product: Product }) {
             alt={product.name}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
-            className="object-cover transition duration-500 group-hover:scale-105"
+            className="bg-[#fff8fb] object-contain p-2 transition duration-500 group-hover:scale-[1.02] sm:p-3"
             priority={false}
           />
         </Link>
@@ -42,8 +42,8 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
       </div>
 
-      <div className="space-y-2 p-1.5 pt-3 sm:space-y-3 sm:p-2 sm:pt-4">
-        <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+      <div className="flex flex-1 flex-col space-y-2 p-1.5 pt-3 sm:space-y-3 sm:p-2 sm:pt-4">
+        <div className="flex min-h-8 flex-wrap items-center justify-between gap-x-2 gap-y-1 sm:min-h-7">
           <p className="truncate text-[9px] font-semibold uppercase text-[#9b8f96] sm:text-[10px]">{product.category}</p>
           <span className="text-sm font-bold text-[#1b1b1b] sm:text-lg">
             {product.status === "COMING_SOON" ? "À venir" : formatPrice(product.price)}
@@ -70,7 +70,7 @@ export function ProductCard({ product }: { product: Product }) {
 
         <Link
           href={`/products/${product.id}`}
-          className="inline-flex w-full items-center justify-center rounded-full bg-[#f6d8e5] px-2 py-2.5 text-xs font-semibold text-[#1d1d1d] transition hover:bg-[#f2c8d9] sm:px-4 sm:py-3 sm:text-sm"
+          className="mt-auto inline-flex w-full items-center justify-center rounded-full bg-[#f6d8e5] px-2 py-2.5 text-xs font-semibold text-[#1d1d1d] transition hover:bg-[#f2c8d9] sm:px-4 sm:py-3 sm:text-sm"
         >
           {product.status === "COMING_SOON" ? "Voir la pièce" : "Voir la pièce"}
         </Link>

@@ -1,4 +1,5 @@
 import { APP_NAME, APP_URL, WHATSAPP_NUMBER, formatPrice } from "@/lib/constants";
+import { formatOrderReference } from "@/lib/order-reference";
 import type { CartLineItem } from "@/types/product";
 
 export type CustomerOrderInformation = {
@@ -28,18 +29,19 @@ export function buildWhatsAppOrderMessage(
   items: CartLineItem[],
   total: number,
   orderReference?: string,
+  includeImageLinks = true,
 ) {
   const itemCount = items.reduce((count, item) => count + item.quantity, 0);
   const productsBlock = items
     .map((item) => [
       `• *${item.name}* — ${item.size}, ${item.color} × ${item.quantity} | ${formatPrice(item.price * item.quantity)}`,
-      ...getItemLinks(item),
+      ...(includeImageLinks ? getItemLinks(item) : []),
     ].join("\n"))
     .join("\n");
 
   return [
     `Bonjour, voici ma commande *${APP_NAME}*.`,
-    orderReference ? `Réf. #${orderReference.slice(0, 8).toUpperCase()}` : "",
+    orderReference ? `Réf. : ${formatOrderReference(orderReference)}` : "",
     `Client : ${customer.fullName} | ${customer.phone}`,
     `Livraison : ${customer.city}, ${customer.district}`,
     customer.address,
@@ -58,8 +60,9 @@ export function getWhatsAppOrderUrl(
   items: CartLineItem[],
   total: number,
   orderReference: string,
+  includeImageLinks = true,
 ) {
-  const message = buildWhatsAppOrderMessage(customer, items, total, orderReference);
+  const message = buildWhatsAppOrderMessage(customer, items, total, orderReference, includeImageLinks);
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 

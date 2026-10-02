@@ -2,6 +2,7 @@ import Link from "next/link";
 import { connection } from "next/server";
 
 import { prisma } from "@/lib/prisma";
+import { formatOrderReference } from "@/lib/order-reference";
 
 export default async function AdminPage() {
   await connection();
@@ -119,7 +120,7 @@ export default async function AdminPage() {
               latestOrders.map((order) => (
                 <div key={order.id} className="rounded-2xl border border-[#f3e2ea] bg-[#fffafc] p-3">
                   <div className="flex items-center justify-between gap-3">
-                    <p className="font-semibold text-[#1b1b1b]">#{order.id.slice(0, 8)}</p>
+                    <p className="font-semibold text-[#1b1b1b]">{formatOrderReference(order.id)}</p>
                     <span className="rounded-full bg-[#f7edf2] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#c06589]">{order.status}</span>
                   </div>
                   <p className="mt-2 text-sm text-[#5d5557]">{order.customerName} • {order.phone}</p>

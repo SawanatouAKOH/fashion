@@ -19,7 +19,12 @@ export async function POST(request: Request) {
     const district = String(customer.district ?? "").trim();
     const deliveryAddress = String(customer.address ?? "").trim();
     const customerNotes = String(customer.notes ?? "").trim();
+    const orderReference = String(body.orderReference ?? "").trim();
     const submittedItems = Array.isArray(body.items) ? body.items as SubmittedItem[] : [];
+
+    if (!/^CMD-[A-Z0-9-]{8,32}$/.test(orderReference)) {
+      return NextResponse.json({ error: "La référence de commande est invalide." }, { status: 400 });
+    }
 
     if (!customerName || !phone || !city || !district || !deliveryAddress) {
       return NextResponse.json({ error: "Les coordonnées et l’adresse de livraison sont obligatoires." }, { status: 400 });
@@ -71,6 +76,7 @@ export async function POST(request: Request) {
 
     const order = await prisma.order.create({
       data: {
+        id: orderReference,
         customerName,
         phone,
         city,
@@ -99,6 +105,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ id: order.id, total: Number(order.total), createdAt: order.createdAt }, { status: 201 });
   } catch (error) {
     console.error("Public order tracking error", error);
+    if (typeof error === "object" && error !== null && "code" in error && error.code === "P2002") {
+      return NextResponse.json({ error: "Cette référence de commande existe déjà. Réessayez." }, { status: 409 });
+    }
     return NextResponse.json({ error: "Impossible d’enregistrer la trace de commande." }, { status: 500 });
   }
 }

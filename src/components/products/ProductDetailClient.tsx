@@ -29,6 +29,8 @@ export function ProductDetailClient({ product }: { product: Product }) {
 
   const isComingSoon = product.status === "COMING_SOON";
   const price = useMemo(() => product.price * quantity, [product.price, quantity]);
+  const colorImages = product.colors.find((color) => color.name === selectedColor)?.images?.filter(Boolean) ?? [];
+  const visibleImages = colorImages.length > 0 ? colorImages : product.images;
 
   async function handleReservation(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -72,7 +74,7 @@ export function ProductDetailClient({ product }: { product: Product }) {
           color: selectedColor,
           price: product.price,
           quantity,
-          image: product.images[0] ?? "",
+          image: visibleImages[0] ?? product.images[0] ?? "",
         },
         result.id,
       );
@@ -92,7 +94,7 @@ export function ProductDetailClient({ product }: { product: Product }) {
       </Link>
 
       <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
-        <ProductGallery images={product.images} name={product.name} />
+        <ProductGallery key={selectedColor} images={visibleImages} name={product.name} />
 
         <div className="space-y-5 lg:py-3">
           <div>
