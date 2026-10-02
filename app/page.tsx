@@ -1,18 +1,21 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Check, Sparkles, Star } from "lucide-react";
+import { connection } from "next/server";
 
 import { CategoryCard } from "@/components/products/CategoryCard";
 import { ProductGrid } from "@/components/products/ProductGrid";
-import { getCategories, getFeaturedProducts, getNewProducts } from "@/data/products";
+import { getCategories, getProducts } from "@/data/products";
 import { APP_NAME } from "@/lib/constants";
 
 export default async function HomePage() {
-  const [featuredProducts, newProducts, categories] = await Promise.all([
-    getFeaturedProducts(),
-    getNewProducts(),
+  await connection();
+
+  const [products, categories] = await Promise.all([
+    getProducts(),
     getCategories(),
   ]);
+  const featuredProducts = products.filter((product) => product.featured);
 
   const highlights = [
     "Livraison en 48 h partout au Maroc",
@@ -20,12 +23,8 @@ export default async function HomePage() {
     "Commande facile via WhatsApp",
   ];
 
-  const heroProducts = [...featuredProducts, ...newProducts]
-    .filter((product, index, allProducts) =>
-      product.featured &&
-      product.images.some((image) => typeof image === "string" && image.trim()) &&
-      allProducts.findIndex((candidate) => candidate.id === product.id) === index,
-    )
+  const heroProducts = featuredProducts
+    .filter((product) => product.images.some((image) => typeof image === "string" && image.trim()))
     .slice(0, 2);
 
   return (
@@ -99,13 +98,13 @@ export default async function HomePage() {
       <section id="nouveautes" className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
         <div className="mb-6 flex items-center justify-between gap-3">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#c06589]">Les nouveautés</p>
-            <h2 className="mt-2 text-2xl font-semibold text-[#191919] sm:text-3xl">Nouveautés</h2>
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#c06589]">La collection</p>
+            <h2 className="mt-2 text-2xl font-semibold text-[#191919] sm:text-3xl">Derniers articles ajoutés</h2>
           </div>
           <Link href="/products" className="text-sm font-medium text-[#d95d8d] hover:text-[#ca4f7a]">Voir plus</Link>
         </div>
 
-        <ProductGrid products={newProducts.slice(0, 8)} />
+        <ProductGrid products={products.slice(0, 8)} />
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
@@ -117,7 +116,7 @@ export default async function HomePage() {
           <Link href="/products" className="text-sm font-medium text-[#d95d8d] hover:text-[#ca4f7a]">Voir toute la collection</Link>
         </div>
 
-        <ProductGrid products={(featuredProducts.length > 0 ? featuredProducts : newProducts).slice(0, 4)} />
+        <ProductGrid products={(featuredProducts.length > 0 ? featuredProducts : products).slice(0, 4)} />
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
@@ -164,7 +163,7 @@ export default async function HomePage() {
 
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-5">
           {categories.map((category) => {
-            const categoryProducts = [...newProducts, ...featuredProducts].filter((product) => product.category === category.name);
+            const categoryProducts = products.filter((product) => product.category === category.name);
             return (
               <CategoryCard
                 key={category.id}
