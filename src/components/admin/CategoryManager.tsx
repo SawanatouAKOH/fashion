@@ -3,6 +3,8 @@
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+
 type Category = {
   id: string;
   name: string;
@@ -27,7 +29,13 @@ export function CategoryManager() {
   }
 
   useEffect(() => {
-    void loadCategories();
+    async function loadInitialCategories() {
+      const response = await fetch("/api/admin/categories");
+      if (!response.ok) return;
+      setItems((await response.json()) as Category[]);
+    }
+
+    void loadInitialCategories();
   }, []);
 
   function resetForm() {
@@ -88,8 +96,10 @@ export function CategoryManager() {
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-      <form onSubmit={handleSubmit} className="space-y-5 rounded-[28px] border border-[#f1dfe7] bg-white p-5 shadow-[0_12px_28px_rgba(18,18,18,0.03)]">
+    <div className="space-y-6">
+      <AdminPageHeader eyebrow="Catalogue" title="Catégories" description="Organisez les univers de la boutique et suivez le nombre d’articles associés." />
+      <div className="grid gap-5 xl:grid-cols-[minmax(280px,0.75fr)_minmax(0,1.25fr)]">
+      <form onSubmit={handleSubmit} className="h-fit space-y-5 rounded-xl border border-[#e9e1e5] bg-white p-5">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-xl font-semibold text-[#191919]">{editingId ? "Modifier la catégorie" : "Nouvelle catégorie"}</h2>
           {editingId ? (
@@ -118,7 +128,7 @@ export function CategoryManager() {
         </button>
       </form>
 
-      <div className="overflow-hidden rounded-[28px] border border-[#f2dfe7] bg-white shadow-[0_12px_28px_rgba(18,18,18,0.03)]">
+      <div className="overflow-hidden rounded-xl border border-[#e9e1e5] bg-white">
         <div className="border-b border-[#f3e1ea] px-5 py-4">
           <h2 className="text-xl font-semibold text-[#191919]">Catégories existantes</h2>
         </div>
@@ -152,6 +162,7 @@ export function CategoryManager() {
             ))
           )}
         </div>
+      </div>
       </div>
     </div>
   );

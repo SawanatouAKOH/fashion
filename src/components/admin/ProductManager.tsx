@@ -1,7 +1,10 @@
 "use client";
 
+import Image from "next/image";
 import { Pencil, Plus, ShieldCheck, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 
 type CategoryOption = {
   id: string;
@@ -360,25 +363,23 @@ export function ProductManager() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 px-4 py-10 sm:px-6 lg:px-8">
-      <div className="flex flex-col gap-3 rounded-[28px] border border-[#f4dfe8] bg-gradient-to-r from-[#fff8fb] to-white p-6 shadow-[0_10px_30px_rgba(16,16,16,0.04)] sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#c06589]">Admin</p>
-          <h1 className="mt-2 text-3xl font-semibold text-[#191919]">Gestion des produits</h1>
-        </div>
-
-        <div className="inline-flex items-center gap-2 rounded-full border border-[#ecdfe7] bg-white px-3 py-1.5 text-sm font-medium text-[#4f474a]">
+    <div className="space-y-6">
+      <AdminPageHeader
+        eyebrow="Catalogue"
+        title="Produits"
+        description="Ajoutez et mettez à jour les articles, leurs variantes, leurs photos et leur disponibilité."
+        actions={<div className="inline-flex items-center gap-2 rounded-full border border-[#e9e1e5] bg-white px-3 py-2 text-sm font-medium text-[#51494d]">
           <ShieldCheck className="h-4 w-4 text-[#d95d8d]" />
-          Prisma connecté
-        </div>
-      </div>
+          Base de données connectée
+        </div>}
+      />
 
-      <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
-        <div className="rounded-[28px] border border-[#f1dfe7] bg-white p-4 shadow-[0_12px_28px_rgba(18,18,18,0.03)]">
+      <div className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(400px,0.95fr)]">
+        <div className="min-w-0 rounded-xl border border-[#e9e1e5] bg-white p-4">
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="text-xl font-semibold text-[#191919]">Catalogue</h2>
             <div className="flex flex-wrap gap-2">
-              <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Rechercher..." className="rounded-full border border-[#ecdfe6] bg-[#fffafc] px-3 py-2 text-sm outline-none transition focus:border-[#d95d8d]" />
+              <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Rechercher..." className="w-full rounded-full border border-[#ecdfe6] bg-[#fffafc] px-3 py-2 text-sm outline-none transition focus:border-[#d95d8d] sm:w-48" />
               <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="rounded-full border border-[#ecdfe6] bg-[#fffafc] px-3 py-2 text-sm outline-none transition focus:border-[#d95d8d]">
                 <option value="ALL">Tous</option>
                 <option value="AVAILABLE">Disponible</option>
@@ -404,7 +405,7 @@ export function ProductManager() {
           </div>
         </div>
 
-        <form ref={productFormRef} onSubmit={handleSubmit} className="scroll-mt-24 space-y-5 rounded-[28px] border border-[#f1dfe7] bg-white p-5 shadow-[0_12px_28px_rgba(18,18,18,0.03)]">
+        <form ref={productFormRef} onSubmit={handleSubmit} className="scroll-mt-24 space-y-5 rounded-xl border border-[#e9e1e5] bg-white p-5 lg:col-start-2 lg:row-span-2">
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-xl font-semibold text-[#191919]">{draft.id ? "Modifier le produit" : "Nouveau produit"}</h2>
             {draft.id ? (
@@ -463,8 +464,8 @@ export function ProductManager() {
                   estimatedArrival: nextEstimatedArrival,
                 }));
               }} className="w-full rounded-2xl border border-[#ecdfe6] bg-[#fffafc] px-4 py-3 outline-none transition focus:border-[#d95d8d]">
-                <option value="AVAILABLE">AVAILABLE</option>
-                <option value="COMING_SOON">COMING_SOON</option>
+                <option value="AVAILABLE">Disponible</option>
+                <option value="COMING_SOON">Bientôt disponible</option>
               </select>
             </div>
           </div>
@@ -616,7 +617,7 @@ export function ProductManager() {
           </button>
         </form>
 
-        <div className="overflow-hidden rounded-[28px] border border-[#f2dfe7] bg-white shadow-[0_12px_28px_rgba(18,18,18,0.03)]">
+        <div className="min-w-0 overflow-hidden rounded-xl border border-[#e9e1e5] bg-white">
           <div className="border-b border-[#f3e1ea] px-5 py-4">
             <h2 className="text-xl font-semibold text-[#191919]">Catalogue actuel</h2>
           </div>
@@ -631,10 +632,10 @@ export function ProductManager() {
                 {visibleProducts.map((product) => (
                   <div key={product.id} className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">
-                      <img src={product.images[0] ?? "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=80"} alt={product.name} className="h-16 w-16 rounded-2xl object-cover" />
+                      <Image src={product.images[0] ?? "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=80"} alt={product.name} width={64} height={64} className="h-16 w-16 rounded-xl object-cover" />
                       <div>
                         <p className="font-semibold text-[#1a1a1a]">{product.name}</p>
-                        <p className="text-sm text-[#655d60]">{product.category?.name ?? selectedCategoryName} • {product.stock} en stock • {product.status}</p>
+                        <p className="text-sm text-[#655d60]">{product.category?.name ?? selectedCategoryName} · {product.stock} en stock · {product.status === "AVAILABLE" ? "Disponible" : "Bientôt disponible"}</p>
                       </div>
                     </div>
 

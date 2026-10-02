@@ -3,6 +3,7 @@
 import { Eye, PackageCheck, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { formatOrderReference } from "@/lib/order-reference";
 
 type OrderItem = {
@@ -136,22 +137,22 @@ export function OrdersManager() {
 
   return (
     <div className="space-y-6">
-      <div className="border-b border-[#f2dfe7] bg-white pb-5">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#c06589]">Commandes</p>
-            <h1 className="mt-2 text-3xl font-semibold text-[#191919]">Gestion des commandes</h1>
-          </div>
-
-          <div className="flex flex-wrap gap-3">
-            <input value={search} onChange={(event) => { setLoading(true); setSearch(event.target.value); }} placeholder="Rechercher client, téléphone..." className="rounded-full border border-[#ecdfe6] bg-[#fffafc] px-3 py-2 text-sm outline-none transition focus:border-[#d95d8d]" />
-            <select value={statusFilter} onChange={(event) => { setLoading(true); setStatusFilter(event.target.value as (typeof statusOptions)[number]); }} className="rounded-full border border-[#ecdfe6] bg-[#fffafc] px-3 py-2 text-sm outline-none transition focus:border-[#d95d8d]">
+      <div>
+        <AdminPageHeader
+          eyebrow="Ventes"
+          title="Commandes"
+          description="Consultez les demandes reçues, contactez les clients et mettez à jour leur suivi."
+          actions={
+            <>
+            <input value={search} onChange={(event) => { setLoading(true); setSearch(event.target.value); }} placeholder="Rechercher client, téléphone..." className="w-full rounded-full border border-[#ecdfe6] bg-[#fffafc] px-3 py-2 text-sm outline-none transition focus:border-[#d95d8d] sm:w-64" />
+            <select value={statusFilter} onChange={(event) => { setLoading(true); setStatusFilter(event.target.value as (typeof statusOptions)[number]); }} className="w-full rounded-full border border-[#ecdfe6] bg-[#fffafc] px-3 py-2 text-sm outline-none transition focus:border-[#d95d8d] sm:w-auto">
               {statusOptions.map((option) => (
                 <option key={option} value={option}>{option === "ALL" ? "Tous les statuts" : statusLabels[option]}</option>
               ))}
             </select>
-          </div>
-        </div>
+            </>
+          }
+        />
         <div className="mt-5 flex flex-wrap gap-2 text-xs">
           <span className="rounded-full bg-[#fff1f6] px-3 py-1.5 font-semibold text-[#bd4e77]">{orders.length} commandes</span>
           <span className="rounded-full border border-[#f1dfe7] px-3 py-1.5 text-[#665b61]">{orders.filter((order) => order.status === "PENDING").length} à traiter</span>
@@ -161,7 +162,7 @@ export function OrdersManager() {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.5fr_0.9fr]">
-        <div className="overflow-hidden rounded-[28px] border border-[#f2dfe7] bg-white shadow-[0_12px_28px_rgba(18,18,18,0.03)]">
+        <div className="overflow-hidden rounded-xl border border-[#e9e1e5] bg-white">
           <div className="flex items-center justify-between border-b border-[#f3e1ea] px-5 py-4">
             <h2 className="text-xl font-semibold text-[#191919]">Commandes</h2>
             <span className="rounded-full bg-[#fff0f5] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#c06589]">{visibleOrders.length}</span>
@@ -225,7 +226,7 @@ export function OrdersManager() {
           </div>
         </div>
 
-        <aside className="rounded-[28px] border border-[#f2dfe7] bg-white p-5 shadow-[0_12px_28px_rgba(18,18,18,0.03)]">
+        <aside className="rounded-xl border border-[#e9e1e5] bg-white p-5">
           <div className="mb-4 flex items-center gap-2">
             <PackageCheck className="h-5 w-5 text-[#d95d8d]" />
             <h2 className="text-xl font-semibold text-[#191919]">Détail commande</h2>
@@ -239,7 +240,7 @@ export function OrdersManager() {
                 <p className="text-xs uppercase tracking-[0.2em] text-[#a36d85]">Commande</p>
                 <p className="mt-2 text-lg font-semibold">{formatOrderReference(selectedOrder.id)}</p>
                 <div className="mt-2 flex items-center justify-between text-[#5d5557]">
-                  <span>Status</span>
+                  <span>Statut</span>
                   <span className="rounded-full bg-[#f7edf2] px-2 py-1 text-[10px] font-semibold tracking-[0.08em] text-[#c06589]">{statusLabels[selectedOrder.status]}</span>
                 </div>
               </div>
