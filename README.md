@@ -21,6 +21,13 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Learn More
+## Database
+
+Production uses PostgreSQL on Neon. The Neon Free plan is permanent, with usage limits; compute scales to zero after inactivity, so the first request after a pause may be slower. Configure `DATABASE_URL` with Neon's pooled connection string and `DIRECT_URL` with its direct connection string. Both URLs should require SSL.
+
+After configuring the URLs, run `npm run prisma:deploy` to create the tables. This initializes an empty PostgreSQL database; it does not transfer existing MySQL data from Aiven.
+
+## Learn More
 
 To learn more about Next.js, take a look at the following resources:
 

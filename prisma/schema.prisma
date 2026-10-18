@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -37,7 +38,7 @@ model Account {
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
-  @@index([userId], map: "Account_userId_fkey")
+  @@index([userId], map: "Account_userId_idx")
 }
 
 model Session {
@@ -47,7 +48,7 @@ model Session {
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([userId], map: "Session_userId_fkey")
+  @@index([userId], map: "Session_userId_idx")
 }
 
 model VerificationToken {
@@ -88,7 +89,7 @@ model Product {
   category         Category          @relation(fields: [categoryId], references: [id])
   reservationItems ReservationItem[]
 
-  @@index([categoryId], map: "Product_categoryId_fkey")
+  @@index([categoryId], map: "Product_categoryId_idx")
 }
 
 model Order {
@@ -107,7 +108,7 @@ model Order {
   user            User?       @relation(fields: [userId], references: [id])
   items           OrderItem[]
 
-  @@index([userId], map: "Order_userId_fkey")
+  @@index([userId], map: "Order_userId_idx")
 }
 
 model OrderItem {
@@ -122,8 +123,8 @@ model OrderItem {
   order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product     Product? @relation(fields: [productId], references: [id])
 
-  @@index([orderId], map: "OrderItem_orderId_fkey")
-  @@index([productId], map: "OrderItem_productId_fkey")
+  @@index([orderId], map: "OrderItem_orderId_idx")
+  @@index([productId], map: "OrderItem_productId_idx")
 }
 
 model Reservation {
@@ -152,8 +153,8 @@ model ReservationItem {
   product       Product?    @relation(fields: [productId], references: [id])
   reservation   Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
 
-  @@index([productId], map: "ReservationItem_productId_fkey")
-  @@index([reservationId], map: "ReservationItem_reservationId_fkey")
+  @@index([productId], map: "ReservationItem_productId_idx")
+  @@index([reservationId], map: "ReservationItem_reservationId_idx")
 }
 
 enum Role {
