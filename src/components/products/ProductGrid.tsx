@@ -1,12 +1,20 @@
 import type { Product } from "@/types/product";
 import { ProductCard } from "@/components/products/ProductCard";
 
-export function ProductGrid({ products }: { products: Product[] }) {
+export function ProductGrid({
+  products,
+  emptyTitle = "Aucun article pour le moment",
+  emptyMessage = "Les prochaines pièces de la collection arrivent bientôt.",
+}: {
+  products: Product[];
+  emptyTitle?: string;
+  emptyMessage?: string;
+}) {
   if (products.length === 0) {
     return (
       <div className="border-y border-[#f1dfe7] py-14 text-center">
-        <p className="text-lg font-semibold text-[#282327]">Aucun article pour le moment</p>
-        <p className="mt-2 text-sm text-[#746970]">Les prochaines pièces de la collection arrivent bientôt.</p>
+        <p className="text-lg font-semibold text-[#282327]">{emptyTitle}</p>
+        <p className="mt-2 text-sm text-[#746970]">{emptyMessage}</p>
       </div>
     );
   }
